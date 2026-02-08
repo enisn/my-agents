@@ -1,4 +1,4 @@
-# Quick Start Guide: OpenCode Orchestrator
+# Quick Start Guide: OpenCode Orchestration
 
 Get started with the orchestration system in 5 minutes.
 
@@ -7,6 +7,7 @@ Get started with the orchestration system in 5 minutes.
 The orchestration agents should already be in place:
 ```
 ~/.config/opencode/agent/
+├── hyper-planner.md
 ├── orchestrator.md
 ├── worker-code.md
 ├── worker-research.md
@@ -17,6 +18,14 @@ The orchestration agents should already be in place:
 If not, they need to be copied there.
 
 ## Basic Usage
+
+### Recommended Flow
+
+For best results on anything non-trivial, use:
+
+```
+@hyper-planner -> Q&A -> @orchestrator -> @subagents (multiple)
+```
 
 ### 1. Simple Task (Direct Worker)
 
@@ -49,10 +58,13 @@ Login endpoint working with 24h JWT tokens. Ready for refresh token implementati
 
 ### 2. Complex Task (Use Orchestrator)
 
-For multi-part features, use the orchestrator:
+For multi-part features, start with hyper-planner to clarify requirements and produce a TODO plan, then use orchestrator to execute it:
 
 ```
-@orchestrator Add user authentication, registration, and password reset
+@hyper-planner Add user authentication, registration, and password reset
+
+# After Q&A and a plan are produced:
+@orchestrator Implement the plan above
 ```
 
 The orchestrator will:
@@ -110,7 +122,7 @@ Ready to execute. Should I proceed? [Y/n]
 ### Example 1: Add Payment Integration
 
 ```
-@orchestrator Integrate Stripe payment processing with checkout flow
+@hyper-planner Integrate Stripe payment processing with checkout flow
 ```
 
 **Orchestrator plan**:
@@ -132,7 +144,7 @@ Batch 3 (Sequential):
 ### Example 2: Refactor API Layer
 
 ```
-@orchestrator Refactor API layer to use new ORM and add error handling
+@hyper-planner Refactor API layer to use new ORM and add error handling
 ```
 
 **Orchestrator plan**:
@@ -159,7 +171,7 @@ Batch 4 (Sequential):
 ### Example 3: Add Testing Suite
 
 ```
-@orchestrator Add comprehensive testing for user authentication module
+@hyper-planner Add comprehensive testing for user authentication module
 ```
 
 **Orchestrator plan**:
@@ -243,6 +255,14 @@ When orchestrator delegates to different agents:
 ```
 
 ## Tips for Best Results
+
+### 0. Use Hyper-Planner for Clarity
+
+If requirements are ambiguous or have many edge cases, start with hyper-planner and answer the Q&A thoroughly:
+
+```
+@hyper-planner Add authentication
+```
 
 ### 1. Be Specific About Requirements
 
@@ -341,6 +361,12 @@ Fix the typo in line 5 of README.md
 
 ## Troubleshooting
 
+### Issue: Hyper-Planner not found
+
+**Solution**: Verify `hyper-planner.md` exists in your agent directory:
+- `~/.config/opencode/agent/` (global)
+- `.opencode/agent/` (project-specific)
+
 ### Issue: Workers don't return structured status
 
 **Solution**: Verify worker agent files are correct:
@@ -378,7 +404,8 @@ Fix the typo in line 5 of README.md
 
 2. **Try a complex task**:
    ```
-   @orchestrator Add user management with CRUD operations
+  @hyper-planner Add user management with CRUD operations
+  @orchestrator Implement the plan above
    ```
 
 3. **Review the output**:

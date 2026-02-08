@@ -8,14 +8,19 @@ Check [QUICK_START.md](QUICK_START.md) for a 5-minute guide to get started with 
 
 The orchestration system consists of:
 
-1. **Orchestrator** (`orchestrator.md`) - Intelligent project manager that:
+1. **Hyper-Planner** (`hyper-planner.md`) - Boundary interrogator and detailed planner that:
+   - Runs an explicit Q&A loop to make requirements unambiguous
+   - Surfaces edge cases, constraints, and out-of-scope items early
+   - Produces comprehensive, actionable TODO lists for downstream execution
+
+2. **Orchestrator** (`orchestrator.md`) - Intelligent project manager that:
    - Analyzes tasks and breaks them into independent units
    - Auto-detects task dependencies for parallel/sequential execution
    - Delegates to appropriate subagents
    - Manages context window through smart summarization
    - Implements retry logic with alternative approaches
 
-2. **Worker Subagents** - Specialized agents designed for orchestrated workflows:
+3. **Worker Subagents** - Specialized agents designed for orchestrated workflows:
    - `worker-code.md` - Code implementation
    - `worker-research.md` - Investigation and exploration
    - `worker-validate.md` - Testing and validation
@@ -100,9 +105,30 @@ Attempt 3: @worker-code implementing sessions → success
 
 ## Usage
 
+### Suggested Flow
+
+For best results, use the agents in this order:
+
+```
+@hyper-planner -> Q&A -> @orchestrator -> @subagents (multiple)
+```
+
+In practice:
+1. Start with **hyper-planner** to clarify scope and generate a detailed plan.
+2. Hand the plan to **orchestrator** to execute in parallel batches.
+3. Orchestrator delegates implementation/validation/fixes to worker subagents.
+
 ### As Primary Agent
 
-Switch to orchestrator using Tab key or command:
+Start with hyper-planner using Tab key or command:
+
+```
+/hyper-planner
+```
+
+Then describe your task (hyper-planner will run Q&A and produce a TODO plan).
+
+Next, switch to orchestrator to execute the plan:
 
 ```
 /orchestrator
@@ -202,8 +228,12 @@ You can also invoke worker subagents directly:
 
 **User Request**:
 ```
-@orchestrator Add product catalog, shopping cart, and checkout to my app
+@hyper-planner Add product catalog, shopping cart, and checkout to my app
 ```
+
+**Hyper-Planner (Q&A → Plan)**:
+- Clarifies requirements, constraints, and edge cases
+- Produces a detailed TODO list suitable for execution
 
 **Orchestrator Analysis**:
 ```
@@ -248,6 +278,16 @@ Batch 4 (Sequential):
 - Context usage: 60% reduction vs single agent
 - 1 issue found and fixed in Batch 4
 
+## When to Use Hyper-Planner
+
+**Use hyper-planner for**:
+- Ambiguous or high-risk tasks (unknowns, edge cases, integrations)
+- Large features where acceptance criteria and boundaries matter
+- When you want a thorough plan before making changes
+
+**Skip hyper-planner for**:
+- Trivial edits where requirements are already fully specified
+
 ## When to Use Orchestrator
 
 **Use orchestrator for**:
@@ -271,6 +311,7 @@ All agents are in `~/.config/opencode/agent/` (or project-specific `.opencode/ag
 Each agent can be customized via:
 
 ### Temperature
+- `hyper-planner.md`: 0.3 (boundary analysis + detailed planning)
 - `orchestrator.md`: 0.15 (focused, deterministic)
 - `worker-code.md`: 0.1 (precise implementation)
 - `worker-research.md`: 0.2 (flexible investigation)
@@ -331,6 +372,12 @@ Tools are configured with appropriate permissions:
    - Don't request tools you don't have
 
 ## Troubleshooting
+
+### Hyper-Planner Not Starting
+
+Check that `hyper-planner.md` exists in:
+- `~/.config/opencode/agent/` (global)
+- `.opencode/agent/` (project-specific)
 
 ### Orchestrator Not Starting
 
