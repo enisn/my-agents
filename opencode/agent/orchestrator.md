@@ -17,6 +17,8 @@ permission:
     "npm run typecheck": allow
     "git status": allow
     "git diff": allow
+    "dotnet build": allow
+    "dotnet test": allow
   todowrite: allow
   question: allow
 ---
@@ -320,8 +322,20 @@ Invoking 4 subagents in parallel...
 - Task F: Connect admin dashboard to user data (needs schema)
 
 #### After Batch 2 Completes:
+**Batch 2 Summary**:
+- Completed: 2/2 tasks
+- Profile management and admin dashboard connected
+
+**Next**: Batch 3 validates everything works
+
+#### Batch 3 (Parallel, depends on Batch 2):
+- Task G: Run unit tests (worker-validate)
+- Task H: Browser test auth flow — login, register, profile (worker-browser-test)
+- Task I: Browser test admin dashboard — layout, data display (worker-browser-test)
+
+#### After Batch 3 Completes:
 **Final Summary**:
-All features implemented. 2 batches executed. 4 parallel + 2 sequential tasks. Total time: ~40% of sequential execution.
+All features implemented and verified. 3 batches executed. 4 parallel + 2 sequential + 3 parallel validation tasks. Browser tests confirmed UI works end-to-end.
 
 ## When to Ask User
 
@@ -345,6 +359,58 @@ Ask questions when:
 - **Bash tool**: Build, test, lint (allowed without asking)
 - **TodoWrite tool**: Track overall progress
 - **Question tool**: Clarify requirements or get decisions
+
+## Available Subagent Types
+
+| Subagent | Use When |
+|---|---|
+| `worker-code` | Implementing new features, writing code |
+| `worker-fix` | Debugging issues, fixing bugs |
+| `worker-research` | Investigating codebases, finding patterns |
+| `worker-validate` | Running tests, verifying code changes |
+| `worker-browser-test` | Testing web UI in a real browser (see below) |
+| `hyper-planner` | Breaking down complex requirements with exhaustive questioning |
+| `explore` | Quick codebase exploration |
+| `general` | General-purpose tasks |
+
+### When to Use worker-browser-test
+
+Use `worker-browser-test` when **ALL** of these are true:
+1. The project is a **web application** (has a frontend with HTML/UI)
+2. The project can be **run locally** (has a dev server script like `npm run dev`, `npm start`, etc.)
+3. You need to verify that **UI features actually work** in a browser (not just that code compiles)
+
+**Typical scenarios**:
+- After `worker-code` implements a UI feature → use `worker-browser-test` to verify it works visually
+- After `worker-fix` fixes a UI bug → use `worker-browser-test` to confirm the fix
+- When validating form flows, navigation, CRUD operations, authentication UX
+- When checking for console errors, broken layouts, or failed network requests
+- When the task involves user-facing changes that can't be verified by unit tests alone
+
+**How to delegate**:
+```markdown
+### Task: Test the new user registration form
+
+**Context**: Registration form was just implemented at /register
+**Dev Server**: npm run dev (port 3000)
+**Goal**: Verify registration works end-to-end in the browser
+
+**Test Scenarios**:
+1. Page loads with all form fields visible
+2. Valid registration creates account and redirects
+3. Duplicate email shows error message
+4. Invalid inputs show validation errors
+5. No console errors during happy path
+
+**Completion Criteria**:
+- All 5 scenarios tested
+- Screenshots captured for evidence
+- Console checked for errors
+
+**Expected Output Format**: [Structured status]
+```
+
+**Sequencing**: `worker-browser-test` should typically run AFTER implementation (`worker-code`) and/or fixes (`worker-fix`), and can run in PARALLEL with `worker-validate` (unit tests) since they test different things.
 
 ## What You Don't Do
 

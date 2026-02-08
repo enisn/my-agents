@@ -16,6 +16,9 @@ permission:
     "npm run lint": allow
     "npm run typecheck": allow
     "npm run test:coverage": allow
+    "dotnet build": allow
+    "dotnet test": allow
+    "dotnet run": allow
   read: allow
   grep: allow
   glob: allow

@@ -15,6 +15,9 @@ permission:
     "npm run build": allow
     "npm run lint": allow
     "npm run typecheck": allow
+    "dotnet build": allow
+    "dotnet test": allow
+    "dotnet run": allow
   write: allow
   edit: allow
 ---
