@@ -1,6 +1,7 @@
 ---
 description: Implementation worker subagent for the orchestrator. Executes code implementation tasks and returns structured status with concise summaries.
 mode: subagent
+model: "zai-coding-plan/glm-4.7"
 temperature: 0.1
 tools:
   read: true
@@ -11,7 +12,9 @@ tools:
   grep: true
 permission:
   bash:
-    "*": ask
+    "*": allow
+    "mkdir": allow
+    "ls": allow
     "npm run build": allow
     "npm run lint": allow
     "npm run typecheck": allow

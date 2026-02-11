@@ -14,6 +14,7 @@ permission:
     "grep *": allow
     "rg *": allow
     "cat *": allow
+    "ls *": allow
   read: allow
   glob: allow
   grep: allow

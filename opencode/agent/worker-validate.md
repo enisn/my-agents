@@ -9,7 +9,7 @@ tools:
   glob: true
 permission:
   bash:
-    "*": ask
+    "*": allow
     "npm test": allow
     "npm run test": allow
     "npm run build": allow
@@ -19,6 +19,7 @@ permission:
     "dotnet build": allow
     "dotnet test": allow
     "dotnet run": allow
+    "ls": allow
   read: allow
   grep: allow
   glob: allow

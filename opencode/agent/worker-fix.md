@@ -11,7 +11,7 @@ tools:
   glob: true
 permission:
   bash:
-    "*": ask
+    "*": allow
     "npm run build": allow
     "npm run lint": allow
     "npm run typecheck": allow
