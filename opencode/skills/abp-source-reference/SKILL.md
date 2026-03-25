@@ -76,7 +76,7 @@ Top-level areas:
   - Contains `abp`, `volo`, and `source-code` folders.
 - `angular` - Nx workspace for Angular theme packages.
   - `apps` and `libs` include Angular app/library sources.
-- `SSR` - Server-side rendering project and appearance pipeline.
+- `SSR` - Server-side rendering project and appearance pipeline. It's known as LeptonX Demo application.
 - `html` / `html-build` - Static theme assets and build outputs.
 - `npm` - Theme npm packs and scripts.
 

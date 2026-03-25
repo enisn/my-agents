@@ -1,0 +1,1 @@
+- For GitHub links or repository access, prefer `gh` first when private access or repository data/actions may be involved, and use plain web fetching for clearly public content or when `gh` is unavailable, failing, or not appropriate.

@@ -1,7 +1,7 @@
 ---
 description: Browser testing worker subagent for orchestrator. Launches local web apps, navigates pages, interacts with UI elements, and validates functionality using Playwright browser automation. Use for web projects that can be run locally.
 mode: subagent
-model: "zai-coding-plan/glm-4.7"
+# model: "zai-coding-plan/glm-5"
 temperature: 0.1
 tools:
   read: true

@@ -1,7 +1,6 @@
 ---
 description: Intelligent project manager that delegates tasks to subagents with auto-parallelization, structured completion conditions, and smart context management. Optimized for token efficiency by batching work and summarizing context between subagent invocations.
 mode: all
-model: "openai/gpt-5.3-codex"
 temperature: 0.15
 tools:
   task: true
