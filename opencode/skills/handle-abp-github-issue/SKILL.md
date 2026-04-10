@@ -345,6 +345,13 @@ When opening a PR:
 - include a concise summary and testing section
 - include `Closes #<issue-number>` in the PR body
 
+After creating the PR:
+
+- assign the PR to the issue opener when that user is assignable and there is no repo-specific reason to use a different assignee
+- add the relevant module and UI labels to the PR based on the issue and the touched area, following existing PR labeling conventions in that repository
+- do not blindly copy issue-only workflow labels like effort or priority onto the PR unless the repository already uses them on PRs
+- prefer `gh pr edit` for assignees and labels, but if it fails due to CLI or GraphQL issues, update the PR through the issue REST endpoint with `gh api repos/<owner>/<repo>/issues/<pr-number> -X PATCH ...`
+
 Recommended PR body shape:
 
 ```text

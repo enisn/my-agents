@@ -29,6 +29,8 @@ Handle a GitHub issue from link to resolution. Start by understanding the issue,
 6. If the issue only needs an explanation or guidance, answer on the issue directly with `gh issue comment` and do not open a PR.
 7. If you create a PR for the issue, include a closing keyword such as `Closes #123` in the PR body.
 8. Prefer the smallest safe change that resolves the issue.
+9. If automated tests cannot meaningfully verify the change, especially for platform-specific or native-input behavior, include a `## Manual Testing` section in the PR body with concrete environment, repro, and expected-result steps.
+10. Apply the correct labels to the issue, and if you open a PR, label the PR too. Use the repository's existing label taxonomy and prefer the most specific platform/component labels available.
 
 ## Classification Rules
 
@@ -197,15 +199,18 @@ Workflow:
 1. Reproduce the issue or confirm the failure mode from tests/logs/code.
 2. Find the root cause before editing.
 3. Implement the narrowest correct fix.
-4. Add or update tests when reasonable.
+4. Add or update tests when reasonable. If not reasonable, state the testing gap clearly and prepare manual verification steps.
 5. Run relevant validation.
-6. Commit, push, and create a PR that closes the issue.
+6. Apply the correct labels to the issue.
+7. Commit, push, and create a PR that closes the issue.
+8. Apply the matching labels to the PR.
 
 Validation should include the most relevant project checks available, for example:
 
 - targeted tests
 - lint for touched files or project
 - build if the fix affects build-time behavior
+- manual validation on the affected platform when the bug lives in native/platform-specific behavior
 
 PR body should include the closing line:
 
@@ -220,12 +225,19 @@ Recommended PR body shape:
 - fix the root cause of <problem>
 - add coverage for <scenario>
 
-## Testing
+## Automated Testing
 - <command 1>
 - <command 2>
 
+## Manual Testing
+- <platform / simulator / device>
+- <repro steps>
+- <expected result>
+
 Closes #<issue-number>
 ```
+
+If no manual testing is needed, omit that section. If automated coverage is not possible or would not exercise the real failure mode, do not pretend the command list fully validates the fix; include the manual testing section instead.
 
 If a short issue update is useful after PR creation, comment with the PR link and a one-line status update.
 
@@ -282,6 +294,8 @@ Once the feature direction is clear:
 2. add or update tests
 3. run validation
 4. create a PR that closes the issue
+
+For feature PRs that touch platform UI, native handlers, or UX that cannot be meaningfully covered by the available automated tests, include the same `## Manual Testing` section in the PR body.
 
 ## Issue Commenting Guidance
 
