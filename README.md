@@ -4,6 +4,17 @@ An intelligent task orchestration system for OpenCode that maximizes parallel ex
 
 Check [QUICK_START.md](QUICK_START.md) for a 5-minute guide to get started with the orchestration system.
 
+## Repository Layout
+
+- `opencode/` contains the runtime files that OpenCode should load.
+- `docs/` contains human-facing diagrams, dependency maps, and repository documentation.
+- Keep documentation outside `opencode/` if you want it documented in the repo but not treated as runtime content.
+
+Documentation:
+
+- [OpenCode Runtime Layout](docs/opencode-runtime-layout.md)
+- [handle-abp-github-issue Dependency Map](docs/handle-abp-github-issue-dependency-map.md)
+
 ## Overview
 
 The orchestration system consists of:

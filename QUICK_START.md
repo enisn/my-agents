@@ -4,18 +4,43 @@ Get started with the orchestration system in 5 minutes.
 
 ## Installation
 
-The orchestration agents should already be in place:
-```
-~/.config/opencode/agent/
-├── hyper-planner.md
-├── orchestrator.md
-├── worker-code.md
-├── worker-research.md
-├── worker-validate.md
-└── worker-fix.md
+The runtime assets in this repository live under `opencode/`:
+
+```text
+opencode/
+├── AGENTS.md
+├── agent/
+│   ├── hyper-planner.md
+│   ├── orchestrator.md
+│   ├── worker-code.md
+│   ├── worker-research.md
+│   ├── worker-validate.md
+│   ├── worker-fix.md
+│   ├── worker-browser-test.md
+│   └── abp-support-lab.md
+└── skills/
+    └── ...
 ```
 
-If not, they need to be copied there.
+Copy or symlink the contents of `opencode/` into your OpenCode config directory:
+
+```
+~/.config/opencode/
+├── AGENTS.md
+├── agent/
+│   ├── hyper-planner.md
+│   ├── orchestrator.md
+│   ├── worker-code.md
+│   ├── worker-research.md
+│   ├── worker-validate.md
+│   ├── worker-fix.md
+│   ├── worker-browser-test.md
+│   └── abp-support-lab.md
+└── skills/
+    └── ...
+```
+
+Human docs under `docs/` are repository documentation only and should not be copied into the OpenCode runtime folder.
 
 ## Basic Usage
 
@@ -420,7 +445,7 @@ Fix the typo in line 5 of README.md
 
 ## Getting Help
 
-- Read the full documentation: `ORCHESTRATION_README.md`
+- Read the full documentation: `README.md`
 - Join the community: https://discord.gg/opencode
 - Report issues: https://github.com/anomalyco/opencode/issues
 
