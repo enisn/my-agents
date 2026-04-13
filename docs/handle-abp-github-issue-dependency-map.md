@@ -10,15 +10,47 @@ Primary skill file:
 
 ```mermaid
 flowchart TD
-    A[handle-abp-github-issue\nopencode/skills/handle-abp-github-issue/SKILL.md]
+    A[Start: user provides ABP GitHub issue] --> B[Read full issue with gh\ncomments, labels, milestone, assignees, screenshots]
+    B --> C{Milestone present?}
 
-    A --> B[abp-source-reference\nopencode/skills/abp-source-reference/SKILL.md]
-    A --> C[abp-support-lab\nopencode/agent/abp-support-lab.md]
-    C --> D[worker-browser-test\nopencode/agent/worker-browser-test.md]
-    A --> E[abpdev references to-local\nCLI command used by the flow]
-    E -. documented by .-> F[abpdev-references\nopencode/skills/abpdev-references/SKILL.md]
-    A -. optional external planning path .-> G[/gsd-quick or /gsd-plan-phase\nnot stored in this repo]
-    A -. alternative validation command .-> H[/abp-support-validate\nnot stored in this repo]
+    C -->|No, batch mode| C1[Skip issue]
+    C -->|No, single issue| C2[Ask one targeted branch or version question]
+    C -->|Yes| D[Resolve base branch from milestone\n10.2 to rel-10.2\n10.2.1 to rel-10.2\n11.0-preview to dev]
+
+    D --> E[Resolve repo context\nuse current repo, abp-source-reference,\nor gh repo clone]
+    E --> F[Inspect screenshots and attachments if present]
+    F --> G[Verify behavior from real source and docs\nuse abp-source-reference for ABP internals]
+
+    G --> H{Classify issue}
+    H -->|answer-only| I[Write verified maintainer reply]
+    H -->|bug-fix| J[Reproduce or confirm failure mode]
+    H -->|feature| K[Plan mode first\nscope, risks, options, validation]
+
+    I --> I1[Post public issue comment with gh]
+    I1 --> Z[Finish with report]
+
+    J --> J1[Find root cause]
+    J1 --> J2[Create work branch from resolved base]
+    J2 --> J3[Implement smallest safe fix]
+    J3 --> J4[Add or update tests when reasonable]
+    J4 --> J5[Run validation]
+    J5 --> J6{Fresh project validation needed?}
+    J6 -->|Yes| J7[Use abp-support-lab or support validation\nand run abpdev references to-local]
+    J6 -->|No| J8[Proceed]
+    J7 --> J9[Commit, push, create PR targeting resolved base\ninclude Closes number]
+    J8 --> J9
+    J9 --> J10[Optional issue comment with PR link]
+    J10 --> Z
+
+    K --> K1[Ask focused option questions if needed]
+    K1 --> K2[Direction settled]
+    K2 --> K3[Create branch from resolved base]
+    K3 --> K4[Implement planned feature]
+    K4 --> K5[Add or update tests]
+    K5 --> K6[Run validation]
+    K6 --> K7[Create PR targeting resolved base\ninclude Closes number]
+    K7 --> K8[Optional issue comment with PR link]
+    K8 --> Z
 ```
 
 ## ASCII Fallback
