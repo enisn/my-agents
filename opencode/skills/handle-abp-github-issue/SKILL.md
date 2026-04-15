@@ -347,10 +347,11 @@ When opening a PR:
 
 After creating the PR:
 
-- assign the PR to the issue opener when that user is assignable and there is no repo-specific reason to use a different assignee
+- request review from the issue opener when that user is review-requestable and there is no repo-specific reason to use a different reviewer
+- do not assign the PR to the issue opener by default unless the user or repository workflow explicitly requires assignees
 - add the relevant module and UI labels to the PR based on the issue and the touched area, following existing PR labeling conventions in that repository
 - do not blindly copy issue-only workflow labels like effort or priority onto the PR unless the repository already uses them on PRs
-- prefer `gh pr edit` for assignees and labels, but if it fails due to CLI or GraphQL issues, update the PR through the issue REST endpoint with `gh api repos/<owner>/<repo>/issues/<pr-number> -X PATCH ...`
+- prefer `gh pr edit` for reviewers and labels, but if reviewer requests fail due to CLI or GraphQL issues, update the PR through the pull-request reviewers API such as `gh api repos/<owner>/<repo>/pulls/<pr-number>/requested_reviewers -X POST -f reviewers[]=''<login>''`; use the issues REST endpoint only for assignees or labels when those are explicitly needed
 
 Recommended PR body shape:
 
