@@ -10,7 +10,7 @@ Primary skill file:
 
 ```mermaid
 flowchart TD
-    A[Start: user provides ABP GitHub issue] --> B[Read full issue with gh\ncomments, labels, milestone, assignees, screenshots]
+    A[Start: user provides ABP GitHub issue] --> B[Read full issue with gh\ncomments, labels, milestone, screenshots]
     B --> C{Milestone present?}
 
     C -->|No, batch mode| C1[Skip issue]
@@ -34,12 +34,19 @@ flowchart TD
     J2 --> J3[Implement smallest safe fix]
     J3 --> J4[Add or update tests when reasonable]
     J4 --> J5[Run validation]
-    J5 --> J6{Fresh project validation needed?}
-    J6 -->|Yes| J7[Use abp-support-lab and run abpdev references to-local.\nTest changes with local references]
+    J5 --> J5A{Visual or browser issue?}
+    J5A -->|Yes| J5B{Playwright MCP tools available?}
+    J5B -->|No| J5C[Ask user to enable Playwright MCP tools.\nDo not scaffold a standalone Playwright project]
+    J5C --> J5B
+    J5B -->|Yes| J5D[Verify actual on-screen behavior.\nCompare visible UI state and native DOM value]
+    J5A -->|No| J6{Fresh project validation needed?}
+    J5D --> J6
+    J6 -->|Yes| J7[Use abp-support-lab or a fresh local app,\nrun abpdev references to-local,\nthen build/run and validate against local refs]
     J6 -->|No| J8[Proceed]
     J7 --> J9[Commit, push, create PR targeting resolved base\ninclude Closes number]
     J8 --> J9
-    J9 --> J10[Optional issue comment with PR link]
+    J9 --> J9A[Request review from issue opener.\nAdd PR labels]
+    J9A --> J10[Optional issue comment with PR link or status]
     J10 --> Z
 
     K --> K1[Ask focused option questions if needed]
@@ -49,7 +56,8 @@ flowchart TD
     K4 --> K5[Add or update tests]
     K5 --> K6[Run validation]
     K6 --> K7[Create PR targeting resolved base\ninclude Closes number]
-    K7 --> K8[Optional issue comment with PR link]
+    K7 --> K7A[Request review from issue opener.\nAdd PR labels]
+    K7A --> K8[Optional issue comment with PR link or status]
     K8 --> Z
 ```
 
@@ -70,8 +78,16 @@ handle-abp-github-issue
   |           - agent file: opencode/agent/worker-browser-test.md
   |           - purpose: browser verification for fresh-project validation
   |
+  +-- uses Playwright MCP/browser tools (for visual issues)
+  |     - runtime capability, not a repo-local file
+  |     - purpose: verify actual on-screen state, not only underlying DOM values
+  |     - compare visible wrapper/UI text with native select or DOM state when needed
+  |     - if unavailable, ask the user to enable Playwright MCP tools
+  |     - do not replace this with a scratch standalone Playwright/npm project
+  |
   +-- uses `abpdev references to-local` command
   |     - used when fresh generated projects must point to local ABP source
+  |     - critical for reproducing and validating browser-visible fixes against local source changes
   |     - related repo skill: opencode/skills/abpdev-references/SKILL.md
   |       documents the CLI, but is not explicitly loaded by name here
   |
@@ -93,6 +109,7 @@ handle-abp-github-issue
 | Skill | `abp-source-reference` | `opencode/skills/abp-source-reference/SKILL.md` | Direct referenced skill for ABP internals and source verification |
 | Subagent | `abp-support-lab` | `opencode/agent/abp-support-lab.md` | Direct referenced validation subagent for fresh-project verification |
 | Subagent | `worker-browser-test` | `opencode/agent/worker-browser-test.md` | Transitive dependency used by `abp-support-lab` for browser validation |
+| Runtime capability | Playwright MCP/browser tools | not in repo | Direct validation path for visual issues; verifies visible on-screen state and should be user-enabled when unavailable |
 | Skill | `abpdev-references` | `opencode/skills/abpdev-references/SKILL.md` | Related documentation for the `abpdev references to-local` CLI used in the flow |
 | External workflow | `/gsd-quick` | not in repo | Optional feature-planning workflow mentioned by the skill |
 | External workflow | `/gsd-plan-phase` | not in repo | Optional feature-planning workflow mentioned by the skill |
@@ -105,6 +122,7 @@ Direct runtime references from `handle-abp-github-issue`:
 1. `abp-source-reference`
 2. `abp-support-lab`
 3. `abpdev references to-local` command
+4. Playwright MCP/browser tools for visual validation
 
 Indirect runtime reference:
 
@@ -115,6 +133,10 @@ Mentioned but not stored in this repository:
 1. `/abp-support-validate`
 2. `/gsd-quick`
 3. `/gsd-plan-phase`
+
+Explicitly avoided fallback for visual issues:
+
+1. Installing standalone Playwright in a scratch npm project instead of asking the user to enable Playwright MCP tools
 
 ## Guidance For Repo Organization
 
