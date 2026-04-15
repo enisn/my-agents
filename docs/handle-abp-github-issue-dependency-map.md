@@ -35,7 +35,7 @@ flowchart TD
     J3 --> J4[Add or update tests when reasonable]
     J4 --> J5[Run validation]
     J5 --> J6{Fresh project validation needed?}
-    J6 -->|Yes| J7[Use abp-support-lab or support validation\nand run abpdev references to-local]
+    J6 -->|Yes| J7[Use abp-support-lab and run abpdev references to-local.\nTest changes with local references]
     J6 -->|No| J8[Proceed]
     J7 --> J9[Commit, push, create PR targeting resolved base\ninclude Closes number]
     J8 --> J9
