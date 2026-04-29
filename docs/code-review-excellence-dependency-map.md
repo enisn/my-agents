@@ -4,7 +4,7 @@ This document shows which review inputs, checklists, and decision points are inv
 
 Primary skill file:
 
-- `opencode/skills/code-review-excellence/SKILL.md`
+- [`opencode/skills/code-review-excellence/SKILL.md`](../opencode/skills/code-review-excellence/SKILL.md)
 
 Docs index:
 

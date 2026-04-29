@@ -4,7 +4,7 @@ This document shows which skills, subagents, and related runtime assets are invo
 
 Primary skill file:
 
-- `opencode/skills/handle-abp-github-issue/SKILL.md`
+- [`opencode/skills/handle-abp-github-issue/SKILL.md`](../opencode/skills/handle-abp-github-issue/SKILL.md)
 
 Docs index:
 

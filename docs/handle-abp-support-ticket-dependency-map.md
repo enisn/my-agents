@@ -4,7 +4,7 @@ This document shows which skills, runtime capabilities, external sources, and ou
 
 Primary skill file:
 
-- `opencode/skills/handle-abp-support-ticket/SKILL.md`
+- [`opencode/skills/handle-abp-support-ticket/SKILL.md`](../opencode/skills/handle-abp-support-ticket/SKILL.md)
 
 Docs index:
 

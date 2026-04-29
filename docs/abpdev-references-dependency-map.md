@@ -4,7 +4,7 @@ This document shows which configuration files, local source trees, project files
 
 Primary skill file:
 
-- `opencode/skills/abpdev-references/SKILL.md`
+- [`opencode/skills/abpdev-references/SKILL.md`](../opencode/skills/abpdev-references/SKILL.md)
 
 Docs index:
 

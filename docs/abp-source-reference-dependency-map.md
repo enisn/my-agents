@@ -4,7 +4,7 @@ This document shows which local source roots, lookup steps, and evidence paths a
 
 Primary skill file:
 
-- `opencode/skills/abp-source-reference/SKILL.md`
+- [`opencode/skills/abp-source-reference/SKILL.md`](../opencode/skills/abp-source-reference/SKILL.md)
 
 Docs index:
 

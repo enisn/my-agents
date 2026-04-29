@@ -4,7 +4,7 @@ This document shows which tools, external workflows, repository assets, and outp
 
 Primary skill file:
 
-- `opencode/skills/handle-github-issue/SKILL.md`
+- [`opencode/skills/handle-github-issue/SKILL.md`](../opencode/skills/handle-github-issue/SKILL.md)
 
 Docs index:
 

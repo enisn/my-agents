@@ -4,7 +4,7 @@ This document shows which repositories, generated artifacts, GitHub actions, and
 
 Primary skill file:
 
-- `opencode/skills/abp-release-qa-orchestrator/SKILL.md`
+- [`opencode/skills/abp-release-qa-orchestrator/SKILL.md`](../opencode/skills/abp-release-qa-orchestrator/SKILL.md)
 
 Docs index:
 

@@ -4,7 +4,7 @@ This document shows which files, commands, and verification steps are involved i
 
 Primary skill file:
 
-- `opencode/skills/scss-compiler/SKILL.md`
+- [`opencode/skills/scss-compiler/SKILL.md`](../opencode/skills/scss-compiler/SKILL.md)
 
 Docs index:
 
