@@ -48,7 +48,7 @@ flowchart TD
     Q --> R
     M -->|No| R
 
-    R --> S[Save markdown answer under\nC:/Users/enisn/support-answers/{ticket-id}/]
+    R --> S[Save markdown answer under\nC:/Users/enisn/support-answers/ticket-id/]
     S --> T[Finish with report to local user\nclassification, diagnosis, evidence,\nvalidation status, and file path]
 ```
 
@@ -66,7 +66,7 @@ flowchart LR
     F --> G[worker-browser-test\ntransitive browser validation]
     A --> H[/abp-support-validate\nexternal validation command]
     A --> I[ABP docs and vendor docs\nexternal reference sources]
-    A --> J[Markdown answer output\nC:/Users/enisn/support-answers/{ticket-id}/]
+    A --> J[Markdown answer output\nC:/Users/enisn/support-answers/ticket-id/]
     A --> K[Relevant repo docs files\noptional answer-plus-docs follow-up]
     A --> L[Normal coding workflow\noptional answer-plus-code-investigation follow-up]
 ```
