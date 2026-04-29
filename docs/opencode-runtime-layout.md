@@ -2,6 +2,16 @@
 
 This repository can safely contain both OpenCode runtime files and human-facing documentation, as long as they are separated clearly.
 
+Docs index:
+
+- [Workflow Documentation Index](./README.md)
+
+Related docs:
+
+- [handle-github-issue Dependency Map](./handle-github-issue-dependency-map.md)
+- [handle-abp-github-issue Dependency Map](./handle-abp-github-issue-dependency-map.md)
+- [handle-abp-support-ticket Dependency Map](./handle-abp-support-ticket-dependency-map.md)
+
 ## Recommended Rule
 
 Only put runtime assets that OpenCode should load under `opencode/`.

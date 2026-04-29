@@ -6,6 +6,16 @@ Primary skill file:
 
 - `opencode/skills/handle-abp-support-ticket/SKILL.md`
 
+Docs index:
+
+- [Workflow Documentation Index](./README.md)
+
+## Related Workflow Docs
+
+- [handle-abp-github-issue Dependency Map](./handle-abp-github-issue-dependency-map.md) - adjacent ABP issue workflow when support analysis turns into public issue work
+- [handle-github-issue Dependency Map](./handle-github-issue-dependency-map.md) - generic issue workflow for non-ABP GitHub follow-up
+- [abp-source-reference Dependency Map](./abp-source-reference-dependency-map.md) - source-root lookup workflow used for ABP internals verification
+
 ## Mermaid Flowchart
 
 ```mermaid
@@ -123,7 +133,9 @@ handle-abp-support-ticket
 | External source | ABP support ticket page | not in repo | Primary input source, typically `abp.io/support/questions/...` |
 | Runtime capability | Markdown/HTML fetch | not in repo | Direct retrieval path for readable ticket content, attachments, and missing details |
 | Runtime capability | Image analysis / OCR tools | not in repo | Direct screenshot inspection path for extracting visible values and errors |
-| Skill | `abp-source-reference` | `opencode/skills/abp-source-reference/SKILL.md` | Direct referenced skill for verifying ABP internals and real source paths |
+| Skill | [abp-source-reference](./abp-source-reference-dependency-map.md) | `opencode/skills/abp-source-reference/SKILL.md` | Direct referenced skill for verifying ABP internals and real source paths |
+| Related workflow doc | [handle-abp-github-issue](./handle-abp-github-issue-dependency-map.md) | `docs/handle-abp-github-issue-dependency-map.md` | Adjacent ABP issue workflow for follow-up bug or feature work |
+| Related workflow doc | [handle-github-issue](./handle-github-issue-dependency-map.md) | `docs/handle-github-issue-dependency-map.md` | Generic issue follow-up workflow outside ABP-specific repos |
 | Subagent | `abp-support-lab` | `opencode/agent/abp-support-lab.md` | Direct referenced validation subagent for exact code/config guidance |
 | Subagent | `worker-browser-test` | `opencode/agent/worker-browser-test.md` | Transitive dependency used by `abp-support-lab` for browser validation |
 | External command | `/abp-support-validate` | not in repo | Alternative validation route mentioned by the skill |
@@ -138,7 +150,7 @@ Direct runtime references from `handle-abp-support-ticket`:
 
 1. Support ticket retrieval through markdown or HTML fetch
 2. Screenshot inspection through image analysis or OCR tools
-3. `abp-source-reference`
+3. [abp-source-reference](./abp-source-reference-dependency-map.md)
 4. `abp-support-lab`
 5. ABP docs and vendor docs
 6. Markdown answer output under `C:\Users\enisn\support-answers\<ticket-id>\`
@@ -146,6 +158,12 @@ Direct runtime references from `handle-abp-support-ticket`:
 Indirect runtime reference:
 
 1. `worker-browser-test` through `abp-support-lab`
+
+Related workflow docs:
+
+1. [handle-abp-github-issue](./handle-abp-github-issue-dependency-map.md)
+2. [handle-github-issue](./handle-github-issue-dependency-map.md)
+3. [abp-source-reference](./abp-source-reference-dependency-map.md)
 
 Mentioned but not stored in this repository:
 

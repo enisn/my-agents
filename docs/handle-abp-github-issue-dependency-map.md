@@ -6,6 +6,17 @@ Primary skill file:
 
 - `opencode/skills/handle-abp-github-issue/SKILL.md`
 
+Docs index:
+
+- [Workflow Documentation Index](./README.md)
+
+## Related Workflow Docs
+
+- [handle-github-issue Dependency Map](./handle-github-issue-dependency-map.md) - the generic issue-handling flow that this skill specializes for ABP repos
+- [handle-abp-support-ticket Dependency Map](./handle-abp-support-ticket-dependency-map.md) - adjacent ABP support workflow that can feed into issue work
+- [abp-source-reference Dependency Map](./abp-source-reference-dependency-map.md) - source-root lookup workflow used for ABP internals verification
+- [abpdev-references Dependency Map](./abpdev-references-dependency-map.md) - local reference switching workflow used during fresh-project validation
+
 ## Mermaid Diagram
 
 ```mermaid
@@ -106,11 +117,13 @@ handle-abp-github-issue
 | Type | Name | Repository Path | Relationship to `handle-abp-github-issue` |
 |---|---|---|---|
 | Skill | `handle-abp-github-issue` | `opencode/skills/handle-abp-github-issue/SKILL.md` | Root skill |
-| Skill | `abp-source-reference` | `opencode/skills/abp-source-reference/SKILL.md` | Direct referenced skill for ABP internals and source verification |
+| Skill | [abp-source-reference](./abp-source-reference-dependency-map.md) | `opencode/skills/abp-source-reference/SKILL.md` | Direct referenced skill for ABP internals and source verification |
 | Subagent | `abp-support-lab` | `opencode/agent/abp-support-lab.md` | Direct referenced validation subagent for fresh-project verification |
 | Subagent | `worker-browser-test` | `opencode/agent/worker-browser-test.md` | Transitive dependency used by `abp-support-lab` for browser validation |
 | Runtime capability | Playwright MCP/browser tools | not in repo | Direct validation path for visual issues; verifies visible on-screen state and should be user-enabled when unavailable |
-| Skill | `abpdev-references` | `opencode/skills/abpdev-references/SKILL.md` | Related documentation for the `abpdev references to-local` CLI used in the flow |
+| Skill | [abpdev-references](./abpdev-references-dependency-map.md) | `opencode/skills/abpdev-references/SKILL.md` | Related documentation for the `abpdev references to-local` CLI used in the flow |
+| Related workflow doc | [handle-github-issue](./handle-github-issue-dependency-map.md) | `docs/handle-github-issue-dependency-map.md` | Generic upstream issue-handling workflow |
+| Related workflow doc | [handle-abp-support-ticket](./handle-abp-support-ticket-dependency-map.md) | `docs/handle-abp-support-ticket-dependency-map.md` | Adjacent ABP support workflow that may surface bugs or feature requests |
 | External workflow | `/gsd-quick` | not in repo | Optional feature-planning workflow mentioned by the skill |
 | External workflow | `/gsd-plan-phase` | not in repo | Optional feature-planning workflow mentioned by the skill |
 | External command | `/abp-support-validate` | not in repo | Alternative validation route mentioned by the skill |
@@ -119,7 +132,7 @@ handle-abp-github-issue
 
 Direct runtime references from `handle-abp-github-issue`:
 
-1. `abp-source-reference`
+1. [abp-source-reference](./abp-source-reference-dependency-map.md)
 2. `abp-support-lab`
 3. `abpdev references to-local` command
 4. Playwright MCP/browser tools for visual validation
@@ -127,6 +140,13 @@ Direct runtime references from `handle-abp-github-issue`:
 Indirect runtime reference:
 
 1. `worker-browser-test` through `abp-support-lab`
+
+Related workflow docs:
+
+1. [handle-github-issue](./handle-github-issue-dependency-map.md)
+2. [handle-abp-support-ticket](./handle-abp-support-ticket-dependency-map.md)
+3. [abp-source-reference](./abp-source-reference-dependency-map.md)
+4. [abpdev-references](./abpdev-references-dependency-map.md)
 
 Mentioned but not stored in this repository:
 
