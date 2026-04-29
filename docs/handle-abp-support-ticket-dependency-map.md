@@ -56,19 +56,19 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A[handle-abp-support-ticket\nSKILL.md]
+    A["handle-abp-support-ticket\nSKILL.md"]
 
-    A --> B[ABP support ticket page\nabp.io/support/questions/...]
-    A --> C[Markdown or HTML fetch\nruntime web capability]
-    A --> D[Screenshot inspection\nimage analysis or OCR runtime tools]
-    A --> E[abp-source-reference\nskill]
-    A --> F[abp-support-lab\nsubagent]
-    F --> G[worker-browser-test\ntransitive browser validation]
-    A --> H[/abp-support-validate\nexternal validation command]
-    A --> I[ABP docs and vendor docs\nexternal reference sources]
-    A --> J[Markdown answer output\nC:/Users/enisn/support-answers/ticket-id/]
-    A --> K[Relevant repo docs files\noptional answer-plus-docs follow-up]
-    A --> L[Normal coding workflow\noptional answer-plus-code-investigation follow-up]
+    A --> B["ABP support ticket page\nabp.io/support/questions/..."]
+    A --> C["Markdown or HTML fetch\nruntime web capability"]
+    A --> D["Screenshot inspection\nimage analysis or OCR runtime tools"]
+    A --> E["abp-source-reference\nskill"]
+    A --> F["abp-support-lab\nsubagent"]
+    F --> G["worker-browser-test\ntransitive browser validation"]
+    A --> H["/abp-support-validate\nexternal validation command"]
+    A --> I["ABP docs and vendor docs\nexternal reference sources"]
+    A --> J["Markdown answer output\nC:/Users/enisn/support-answers/ticket-id/"]
+    A --> K["Relevant repo docs files\noptional answer-plus-docs follow-up"]
+    A --> L["Normal coding workflow\noptional answer-plus-code-investigation follow-up"]
 ```
 
 ## ASCII Fallback
