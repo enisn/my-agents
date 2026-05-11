@@ -57,17 +57,19 @@ Treat this skill as code-first for actionable ABP GitHub issues.
 3. Always resolve the target base branch from the issue milestone before coding.
 4. Always inspect the relevant source before deciding the issue is `answer-only` or before suggesting any workaround.
 5. Always use `abp-source-reference` when the issue touches ABP internals, module behavior, templates, Studio behavior, or unclear implementation details.
-6. Verify from real source and docs; do not guess internal behavior from memory.
-7. If screenshots or image attachments are present in the issue, inspect them and use the visible values, errors, URLs, toggles, versions, and provider names as evidence.
-8. For `bug-fix`, you may proceed directly to reproduction, root cause analysis, fix, validation, and PR creation.
-9. For `feature`, never jump straight into coding. Use plan mode first, present focused options, and only implement once the direction is clear.
-10. Do not post a workaround comment instead of fixing the issue when source validation shows repository code changes are needed.
-11. Only comment without code changes when source-backed investigation shows the behavior is intended, unsupported, external to the repository, or otherwise does not require repository changes.
-12. If the issue has no milestone, skip it in batch mode. In single-issue mode, ask exactly one targeted question for the target branch or version.
-13. If you present code or configuration as exact or copy-paste-safe, validate it with `abp-support-lab` or `/abp-support-validate` when practical.
-14. When validating a fresh generated project against local ABP source, use `abpdev references to-local <workingdirectory>` so the lab project switches from package references to local csproj references.
-15. PRs must target the resolved base branch and include a closing keyword such as `Closes #123`.
-16. Prefer the smallest safe change that resolves the issue.
+6. If the issue mentions ABP CLI and does not specify which implementation, use the CLI implementation in `C:\P\abp-studio` or `volosoft/abp-studio` as the default source of truth.
+7. For `volosoft/abp-studio`, do not assume milestone titles like `10.2` map to `rel-10.2`. First read `C:\P\abp\docs\en\studio\version-mapping.md`, then verify the actual Studio release branch from the repository branch list and recent PR base conventions.
+8. Verify from real source and docs; do not guess internal behavior from memory.
+9. If screenshots or image attachments are present in the issue, inspect them and use the visible values, errors, URLs, toggles, versions, and provider names as evidence.
+10. For `bug-fix`, you may proceed directly to reproduction, root cause analysis, fix, validation, and PR creation.
+11. For `feature`, never jump straight into coding. Use plan mode first, present focused options, and only implement once the direction is clear.
+12. Do not post a workaround comment instead of fixing the issue when source validation shows repository code changes are needed.
+13. Only comment without code changes when source-backed investigation shows the behavior is intended, unsupported, external to the repository, or otherwise does not require repository changes.
+14. If the issue has no milestone, skip it in batch mode. In single-issue mode, ask exactly one targeted question for the target branch or version.
+15. If you present code or configuration as exact or copy-paste-safe, validate it with `abp-support-lab` or `/abp-support-validate` when practical.
+16. When validating a fresh generated project against local ABP source, use `abpdev references to-local <workingdirectory>` so the lab project switches from package references to local csproj references.
+17. PRs must target the resolved base branch and include a closing keyword such as `Closes #123`.
+18. Prefer the smallest safe change that resolves the issue.
 
 ## Branch Resolution From Milestone
 
@@ -91,6 +93,7 @@ gh api repos/<owner>/<repo>/milestones?state=all
 
 Use these rules in order:
 
+0. If the repository is `volosoft/abp-studio`, use the ABP Studio branch mapping rules below instead of assuming ABP framework branch names.
 1. If milestone title is a stable release like `10.2`, create the work branch from `rel-10.2` and target `rel-10.2` in the PR.
 2. If milestone title is more specific but still maps to a stable release line such as `10.2.1`, normalize it to `rel-10.2`.
 3. If milestone represents the latest development line, preview line, or pre-release line such as `11.0-preview`, use `dev` as the branch to branch from and as the PR base.
@@ -99,6 +102,26 @@ Use these rules in order:
    - single issue handling -> ask one targeted question
 5. If milestone exists but is ambiguous, inspect the repository milestone list and determine whether it maps to a stable release line or the latest development line.
 6. If it still cannot be resolved safely, ask one targeted question in single-issue mode or skip in batch mode.
+
+### ABP Studio Branch Mapping Rules
+
+For `volosoft/abp-studio`, milestone titles like `10.2`, `10.3`, and `10.4` refer to the ABP version used by Studio, not the Studio git branch name.
+
+Resolve the branch in this order:
+
+1. Read `C:\P\abp\docs\en\studio\version-mapping.md` to map the ABP version line to the Studio version line.
+2. Verify that Studio release line exists in `volosoft/abp-studio` by checking remote branches with `gh` or `git branch -r`.
+3. Cross-check recent PR base branches for the same milestone with `gh pr list -R volosoft/abp-studio --search "milestone:<title>" --json baseRefName,...`.
+4. If the mapped stable Studio release branch exists, use that `rel-x.y` branch.
+5. If the milestone is newer than the published version-mapping doc, use repo evidence to determine whether work is still landing on the latest stable Studio branch or on `dev`.
+6. If no stable Studio branch exists for that mapped line and current work is happening on the development line, use `dev`.
+
+Verified examples from the mapping doc and current branch conventions:
+
+- ABP `10.1.x` -> Studio `2.2.x` -> `rel-2.2`
+- ABP `10.2.x` -> Studio `2.2.5 - 2.2.6` -> `rel-2.2`
+
+Do not open ABP Studio PRs against `rel-10.x` unless that branch actually exists in the repository.
 
 ### Normalization Examples
 

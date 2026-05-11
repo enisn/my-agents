@@ -24,13 +24,14 @@ Handle a GitHub issue from link to resolution. Start by understanding the issue,
 1. Always analyze the issue before acting.
 2. Always use `gh` first for GitHub data, issue comments, and PR creation.
 3. Always classify the issue as `answer-only`, `bug-fix`, or `feature` before coding.
-4. For `bug-fix`, you may proceed directly to reproduction, root cause analysis, fix, validation, and PR creation.
-5. For `feature`, never jump straight into coding. Use plan mode first, present options and tradeoffs, ask focused questions, and only implement after the feature direction is clear.
-6. If the issue only needs an explanation or guidance, answer on the issue directly with `gh issue comment` and do not open a PR.
-7. If you create a PR for the issue, include a closing keyword such as `Closes #123` in the PR body.
-8. Prefer the smallest safe change that resolves the issue.
-9. If automated tests cannot meaningfully verify the change, especially for platform-specific or native-input behavior, include a `## Manual Testing` section in the PR body with concrete environment, repro, and expected-result steps.
-10. Apply the correct labels to the issue, and if you open a PR, label the PR too. Use the repository's existing label taxonomy and prefer the most specific platform/component labels available.
+4. If an ABP issue mentions the CLI without specifying which implementation, use the ABP Studio CLI in `C:\P\abp-studio` or `volosoft/abp-studio` as the default CLI source of truth.
+5. For `bug-fix`, you may proceed directly to reproduction, root cause analysis, fix, validation, and PR creation.
+6. For `feature`, never jump straight into coding. Use plan mode first, present options and tradeoffs, ask focused questions, and only implement after the feature direction is clear.
+7. If the issue only needs an explanation or guidance, answer on the issue directly with `gh issue comment` and do not open a PR.
+8. If you create a PR for the issue, include a closing keyword such as `Closes #123` in the PR body.
+9. Prefer the smallest safe change that resolves the issue.
+10. If automated tests cannot meaningfully verify the change, especially for platform-specific or native-input behavior, include a `## Manual Testing` section in the PR body with concrete environment, repro, and expected-result steps.
+11. Apply the correct labels to the issue, and if you open a PR, label the PR too. Use the repository's existing label taxonomy and prefer the most specific platform/component labels available.
 
 ## Classification Rules
 
@@ -120,6 +121,8 @@ Work in the correct codebase.
 1. If the current workspace is already the target repository, use it.
 2. If not, look for an obvious local checkout.
 3. If no local checkout is available, clone with `gh repo clone <owner>/<repo>` into a safe working location and continue there.
+
+If the issue is about the ABP CLI and no repository is explicitly specified, default to the CLI implementation in `C:\P\abp-studio` or `volosoft/abp-studio` and treat that as the source of truth unless the user says otherwise.
 
 Do not assume the current directory matches the issue repository.
 

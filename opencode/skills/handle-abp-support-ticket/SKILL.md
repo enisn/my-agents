@@ -48,6 +48,22 @@ Default to `answer-only` unless the user asks for documentation or code changes.
 
 ## Recommended Workflow
 
+### Step 0: Reuse local ticket memory
+
+Before fetching the ticket, check whether a local ticket folder already exists:
+
+- `C:\Users\enisn\support-answers\<ticket-id>\`
+
+If the folder exists:
+
+- read the latest `support-answer-<ticket-id>-NN.md` draft if present
+- read the latest `support-notes-<ticket-id>-NN.md` notes if present
+- use them as prior context, open questions, and continuity from earlier sessions
+- do not treat local notes as the source of truth over the actual support ticket, screenshots, source, or docs
+
+In a fresh session, do not start from scratch if previous local artifacts already exist for the same ticket.
+Always reuse them first, then re-fetch the support ticket and re-verify the current facts.
+
 ### Step 1: Read the support ticket
 
 Fetch the support page in a readable form.
@@ -184,7 +200,10 @@ Avoid:
 - narrating your private investigation process
 - dumping large code excerpts
 - exposing non-public implementation details
+- offering to create or manage internal issues, escalations, or other internal follow-up processes on the asker's behalf, or asking them for permission/confirmation to do so
 - sounding uncertain when the source is clear
+
+If an internal issue has already been created and it is useful context, you may mention only the issue number in the public answer (for example `Internal issue created: #12345`). Do not ask the asker for confirmation and do not discuss internal workflow.
 
 ### Step 7: Save the answer as markdown
 
@@ -202,6 +221,7 @@ Recommended naming:
 Storage rules:
 
 - keep one folder per ticket number
+- on follow-up or fresh-session reruns for the same ticket, check the existing folder first and continue from the latest notes/draft when applicable
 - keep earlier drafts instead of overwriting
 - increment `NN` for each new public reply draft
 
@@ -267,6 +287,7 @@ When finishing, report back to the local user with:
 - the markdown file path you created
 - the validation report path, if you used the lab
 - any docs/code files changed, if applicable
+- any internal follow-up you recommend or created; if you also mention it in the public support answer, keep it to a terse status with the issue number only
 - any unresolved question that still needs asker feedback
 
 ## Quick Reminder

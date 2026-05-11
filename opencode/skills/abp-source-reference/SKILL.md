@@ -10,7 +10,7 @@ Use this skill whenever the task touches ABP internals, module behavior, extensi
 ## Local Source Roots (Exact Paths)
 
 - `C:\P\abp` - ABP Framework monorepo (open-source framework + official OSS modules + npm packages + templates).
-- `C:\P\abp-studio` - ABP Studio source tree and related tooling implementation.
+- `C:\P\abp-studio` - ABP Studio source tree, related tooling implementation, and the actively used standard solution templates.
 - `C:\P\volo` - Commercial/pro modules and source-code bundles (SaaS, Chat, Payment, Lepton Theme, etc.).
 - `C:\P\lepton` - Lepton theme repositories (ASP.NET Core, Angular, SSR, HTML assets, npm packs).
 
@@ -59,14 +59,21 @@ Use Volo root when question is about:
 - Commercial module implementation details.
 - Module-specific application contracts and app services.
 - Pro-only UI/API behavior not present in OSS `C:\P\abp\modules`.
+- Legacy/comparison copies of commercial templates, but do not treat them as the primary source of truth for currently used ABP Studio startup templates.
 
 ### 3) ABP Studio (`C:\P\abp-studio`)
+
+Top-level areas:
+
+- `C:\P\abp-studio\extensions\solution-templates\Volo.Abp.Studio.Extensions.StandardSolutionTemplates\TemplateContents` - actively used startup template contents for ABP Studio-generated solutions.
+- `C:\P\abp-studio\extensions\solution-templates\Volo.Abp.Studio.Extensions.StandardSolutionTemplates.Core` - shared template/upgrader logic for Studio templates.
 
 Use ABP Studio root when question is about:
 
 - ABP Studio desktop app behavior and workflows.
 - Studio-specific tooling, orchestration, and integration logic.
 - Features that exist in Studio but not in framework/module repos.
+- Current startup template behavior, generated solution contents, and template bugs affecting ABP Studio-created applications.
 
 ### 4) Lepton (`C:\P\lepton`)
 
@@ -89,10 +96,12 @@ Use Lepton root when question is about:
 ## Practical Search Order
 
 1. Try `C:\P\abp` (framework + OSS modules).
-2. If Studio-specific, check `C:\P\abp-studio`.
-3. If likely commercial/pro, check `C:\P\volo`.
-4. If UI/theme-specific, check `C:\P\lepton`.
-5. Cross-check with tests/examples before final guidance.
+2. If the question involves startup templates or generated solution contents, check `C:\P\abp-studio` first.
+3. If Studio-specific, check `C:\P\abp-studio`.
+4. If likely commercial/pro, check `C:\P\volo`.
+5. Use `C:\P\volo` template copies as legacy/reference material when helpful, but do not prefer them over `C:\P\abp-studio` for actively used templates.
+6. If UI/theme-specific, check `C:\P\lepton`.
+7. Cross-check with tests/examples before final guidance.
 
 ## Response Style Requirements
 
@@ -105,4 +114,4 @@ When answering ABP-source questions:
 
 ## Fast Reminder Snippet
 
-"Use local ABP source of truth. Check `C:\P\abp`, `C:\P\abp-studio`, `C:\P\volo`, `C:\P\lepton` before answering; do not guess internal implementations."
+"Use local ABP source of truth. Check `C:\P\abp`, `C:\P\abp-studio`, `C:\P\volo`, `C:\P\lepton` before answering; for actively used startup templates prefer `C:\P\abp-studio` over legacy copies in `C:\P\volo`; do not guess internal implementations."
