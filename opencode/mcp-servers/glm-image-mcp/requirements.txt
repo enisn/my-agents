@@ -1,4 +1,0 @@
-mcp>=0.9.0
-zai-sdk>=0.2.1
-httpx>=0.25.0
-requests>=2.31.0
