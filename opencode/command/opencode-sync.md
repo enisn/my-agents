@@ -79,7 +79,9 @@ Important: filter per file. Do not assume an entire folder is GSD or non-GSD.
 - For repo-side config, use placeholders, environment-variable references, or omit machine-local secret values.
 - Treat these as secret-bearing unless proven otherwise: `opencode.json`, `opencode.jsonc`, `settings.json`, `mcp-servers/**`, `hooks/**`, `plugin/**`, `plugins/**`, `tool/**`, `tools/**`.
 - Prefer OS/user-level environment variables for API keys instead of literal values in OpenCode config files.
-- The helper blocks common secret shapes in repo files, including key names containing `API_KEY`, `TOKEN`, `SECRET`, `PASSWORD`, connection strings, and CLI arguments such as `--api-key=...`.
+- Use OpenCode config variable syntax `{env:VARIABLE_NAME}` when referencing environment variables in JSON/JSONC.
+- The helper blocks common secret shapes in repo files, including key names containing `API_KEY`, `TOKEN`, `SECRET`, `PASSWORD`, connection strings, `Authorization: Bearer ...`, and CLI arguments such as `--api-key=...`.
+- The helper reports every `{env:...}` reference used by local `opencode.jsonc` or `opencode.json`, and whether that variable is visible to the current process, user environment, or machine environment.
 - Do not print secret values in the response, commit message, or diagnostics.
 - If a useful repo update conflicts with a local secret, keep the local value locally and commit only the non-secret structure or placeholder in the repo.
 </secret_policy>
@@ -103,12 +105,16 @@ Do not run multiple helper modes concurrently against the same repository. Git f
    - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode Prepare -RawArguments "$ARGUMENTS"`
 6. Run the secret scan before committing anything:
    - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode Scan -RawArguments "$ARGUMENTS"`
-7. Check the repository status:
+7. Check environment-variable references used by local OpenCode config:
+   - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode EnvCheck -RawArguments "$ARGUMENTS"`
+   - if a referenced variable is present in User/Machine but not the current process, tell the user to restart OpenCode/terminal
+   - if a referenced variable is missing, report the variable name and reference location without printing any secret value
+8. Check the repository status:
    - `git -C <repo-root> status --short`
-8. If repository changes are present and the scan passes, commit and push unless `no-push` was requested:
+9. If repository changes are present and the scan passes, commit and push unless `no-push` was requested:
    - normal path: `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode CommitPush -RawArguments "$ARGUMENTS"`
    - if unrelated pre-existing repo changes are present, do not use bulk commit mode; stage only the reviewed sync files manually, commit, and push if appropriate
-9. Report what changed, what was intentionally left local-only, and whether a push occurred.
+10. Report what changed, what was intentionally left local-only, env variables that are missing or need a restart, and whether a push occurred.
 </process>
 
 <merge_guidance>

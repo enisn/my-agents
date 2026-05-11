@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("Prepare", "Scan", "CommitPush")]
+    [ValidateSet("Prepare", "Scan", "EnvCheck", "CommitPush")]
     [string]$Mode = "Prepare",
     [string]$RawArguments = "",
     [string]$RepoRoot = "",
@@ -265,7 +265,7 @@ function Get-ComparisonItems {
 }
 
 function Write-PrepareHuman {
-    param([object[]]$Items, [string[]]$Status)
+    param([object[]]$Items, [string[]]$Status, [object[]]$EnvReferences)
 
     Write-Host "OpenCode sync prepare"
     Write-Host "Repository root: $EffectiveRepoRoot"
@@ -290,6 +290,106 @@ function Write-PrepareHuman {
             Write-Host "    repo: $($item.repoPath)"
         }
     }
+
+    Write-Host ""
+    Write-EnvCheckHuman $EnvReferences
+}
+
+function Get-EnvironmentReferenceState {
+    param([string]$Name)
+
+    $processValue = [Environment]::GetEnvironmentVariable($Name, "Process")
+    $userValue = [Environment]::GetEnvironmentVariable($Name, "User")
+    $machineValue = [Environment]::GetEnvironmentVariable($Name, "Machine")
+    $sources = New-Object System.Collections.Generic.List[string]
+
+    if (-not [string]::IsNullOrWhiteSpace($processValue)) { $sources.Add("Process") }
+    if (-not [string]::IsNullOrWhiteSpace($userValue)) { $sources.Add("User") }
+    if (-not [string]::IsNullOrWhiteSpace($machineValue)) { $sources.Add("Machine") }
+
+    return [pscustomobject]@{
+        name = $Name
+        available = $sources.Count -gt 0
+        currentProcess = -not [string]::IsNullOrWhiteSpace($processValue)
+        sources = $sources.ToArray()
+    }
+}
+
+function Get-ConfigEnvironmentReferences {
+    $configNames = @("opencode.jsonc", "opencode.json")
+    $referencesByName = @{}
+    $pattern = '\{env:([A-Za-z_][A-Za-z0-9_]*)\}'
+
+    foreach ($configName in $configNames) {
+        $path = Join-Path $EffectiveLocalRoot $configName
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
+
+        $lineNumber = 0
+        foreach ($line in (Get-Content -LiteralPath $path -Encoding UTF8)) {
+            $lineNumber++
+            foreach ($match in [regex]::Matches($line, $pattern)) {
+                $name = $match.Groups[1].Value
+                if (-not $referencesByName.ContainsKey($name)) {
+                    $referencesByName[$name] = New-Object System.Collections.Generic.List[object]
+                }
+                $referencesByName[$name].Add([pscustomobject]@{
+                    path = $configName
+                    line = $lineNumber
+                })
+            }
+        }
+    }
+
+    $items = New-Object System.Collections.Generic.List[object]
+    foreach ($name in ($referencesByName.Keys | Sort-Object)) {
+        $state = Get-EnvironmentReferenceState $name
+        $items.Add([pscustomobject]@{
+            name = $name
+            available = $state.available
+            currentProcess = $state.currentProcess
+            sources = $state.sources
+            references = $referencesByName[$name].ToArray()
+        })
+    }
+
+    return $items.ToArray()
+}
+
+function Write-EnvCheckHuman {
+    param([object[]]$EnvReferences)
+
+    Write-Host "Environment references in local OpenCode config: $($EnvReferences.Count)"
+    if ($EnvReferences.Count -eq 0) {
+        Write-Host "  none"
+        return
+    }
+
+    foreach ($item in $EnvReferences) {
+        $status = if ($item.available) { "available" } else { "missing" }
+        $processStatus = if ($item.currentProcess) { "current-process" } else { "not-in-current-process" }
+        $sources = if ($item.sources.Count -gt 0) { $item.sources -join "," } else { "none" }
+        $locations = ($item.references | ForEach-Object { "$($_.path):$($_.line)" }) -join ", "
+        Write-Host "  [$status; $processStatus; sources=$sources] $($item.name) at $locations"
+    }
+
+    $notInProcess = @($EnvReferences | Where-Object { $_.available -and -not $_.currentProcess })
+    if ($notInProcess.Count -gt 0) {
+        Write-Host "  restart OpenCode/terminal for user or machine environment variable changes to reach the current process."
+    }
+}
+
+function Invoke-EnvCheck {
+    $envReferences = @(Get-ConfigEnvironmentReferences)
+
+    if ($Json) {
+        [pscustomobject]@{
+            localRoot = $EffectiveLocalRoot
+            envReferences = $envReferences
+        } | ConvertTo-Json -Depth 6
+        return
+    }
+
+    Write-EnvCheckHuman $envReferences
 }
 
 function Invoke-Prepare {
@@ -302,6 +402,7 @@ function Invoke-Prepare {
 
     $status = @(Get-GitStatus)
     $items = @(Get-ComparisonItems)
+    $envReferences = @(Get-ConfigEnvironmentReferences)
 
     if ($Json) {
         [pscustomobject]@{
@@ -310,11 +411,12 @@ function Invoke-Prepare {
             localRoot = $EffectiveLocalRoot
             gitStatus = $status
             differences = $items
+            envReferences = $envReferences
         } | ConvertTo-Json -Depth 6
         return
     }
 
-    Write-PrepareHuman $items $status
+    Write-PrepareHuman $items $status $envReferences
 }
 
 function Test-PlaceholderValue {
@@ -325,6 +427,8 @@ function Test-PlaceholderValue {
     if ([string]::IsNullOrWhiteSpace($trimmed)) { return $true }
     if ($trimmed -match '^(null|true|false)$') { return $true }
     if ($trimmed -match '^<[^>]+>$') { return $true }
+    if ($trimmed -match '^\{env:[A-Za-z_][A-Za-z0-9_]*\}$') { return $true }
+    if ($trimmed -match '^Bearer\s+\{env:[A-Za-z_][A-Za-z0-9_]*\}$') { return $true }
     if ($trimmed -match '^\$\{[^}]+\}$') { return $true }
     if ($trimmed -match '^\$env:') { return $true }
     if ($trimmed -match '^(REDACTED|PLACEHOLDER|CHANGE_ME|TODO|EXAMPLE|YOUR_|your-|xxx|\*\*\*)') { return $true }
@@ -365,6 +469,7 @@ function Find-SecretFindings {
     $envSecretKeyPattern = 'API[_-]?KEY|APIKEY|TOKEN|SECRET|PASSWORD|PASSWD|PWD|CLIENT[_-]?SECRET|CONNECTION[_-]?STRING|ACCESS[_-]?KEY|REFRESH[_-]?TOKEN'
     $jsonEnvAssignmentPattern = '["''][A-Z0-9_.-]*(?:' + $envSecretKeyPattern + ')[A-Z0-9_.-]*["'']\s*:\s*["'']([^"'']+)["'']'
     $shellEnvAssignmentPattern = '^\s*[A-Z0-9_.-]*(?:' + $envSecretKeyPattern + ')[A-Z0-9_.-]*\s*=\s*["'']?([^"'',;#}\]\s]+)'
+    $bearerTokenPattern = '(?i)["'']Authorization["'']\s*:\s*["''](Bearer\s+[^"'']+)["'']'
     $keyValuePatterns = @(
         '(?i)^\s*["'']([^"'']*(?:' + $secretKeyPattern + ')[^"'']*)["'']\s*[:=]\s*(.+)$',
         '^\s*([A-Z0-9_.-]*(?:' + $envSecretKeyPattern + ')[A-Z0-9_.-]*)\s*[:=]\s*(.+)$'
@@ -380,6 +485,7 @@ function Find-SecretFindings {
         try {
             foreach ($line in (Get-Content -LiteralPath $path -Encoding UTF8)) {
                 $lineNumber++
+                $lineUsesEnvPlaceholderForSecretValue = $line -match '(?i)^\s*["''][^"'']*(?:api[_-]?key|apikey|token|secret|password|passwd|pwd|client[_-]?secret|connection[_-]?string|access[_-]?key|refresh[_-]?token)[^"'']*["'']\s*:\s*["'']\{env:[A-Za-z_][A-Za-z0-9_]*\}["'']'
 
                 foreach ($pattern in $hardPatterns) {
                     if ($line -match $pattern.pattern) {
@@ -391,33 +497,49 @@ function Find-SecretFindings {
                     }
                 }
 
-                foreach ($assignmentPattern in @($jsonEnvAssignmentPattern, $shellEnvAssignmentPattern)) {
-                    $assignmentMatch = [regex]::Match($line, $assignmentPattern)
-                    if ($assignmentMatch.Success) {
-                        $value = Get-AssignmentValue $assignmentMatch.Groups[1].Value
-                        if (-not (Test-PlaceholderValue $value)) {
-                            $findings.Add([pscustomobject]@{
-                                path = $relative
-                                line = $lineNumber
-                                type = "secret-like-assignment"
-                            })
+                if (-not $lineUsesEnvPlaceholderForSecretValue) {
+                    foreach ($assignmentPattern in @($jsonEnvAssignmentPattern, $shellEnvAssignmentPattern)) {
+                        $assignmentMatch = [regex]::Match($line, $assignmentPattern)
+                        if ($assignmentMatch.Success) {
+                            $value = Get-AssignmentValue $assignmentMatch.Groups[1].Value
+                            if (-not (Test-PlaceholderValue $value)) {
+                                $findings.Add([pscustomobject]@{
+                                    path = $relative
+                                    line = $lineNumber
+                                    type = "secret-like-assignment"
+                                })
+                            }
+                            break
                         }
-                        break
                     }
                 }
 
-                foreach ($keyValuePattern in $keyValuePatterns) {
-                    $match = [regex]::Match($line, $keyValuePattern)
-                    if ($match.Success) {
-                        $value = Get-AssignmentValue $match.Groups[2].Value
-                        if (-not (Test-PlaceholderValue $value)) {
-                            $findings.Add([pscustomobject]@{
-                                path = $relative
-                                line = $lineNumber
-                                type = "secret-like-assignment"
-                            })
+                $bearerMatch = [regex]::Match($line, $bearerTokenPattern)
+                if ($bearerMatch.Success) {
+                    $value = $bearerMatch.Groups[1].Value
+                    if (-not (Test-PlaceholderValue $value)) {
+                        $findings.Add([pscustomobject]@{
+                            path = $relative
+                            line = $lineNumber
+                            type = "secret-like-bearer-token"
+                        })
+                    }
+                }
+
+                if (-not $lineUsesEnvPlaceholderForSecretValue) {
+                    foreach ($keyValuePattern in $keyValuePatterns) {
+                        $match = [regex]::Match($line, $keyValuePattern)
+                        if ($match.Success) {
+                            $value = Get-AssignmentValue $match.Groups[2].Value
+                            if (-not (Test-PlaceholderValue $value)) {
+                                $findings.Add([pscustomobject]@{
+                                    path = $relative
+                                    line = $lineNumber
+                                    type = "secret-like-assignment"
+                                })
+                            }
+                            break
                         }
-                        break
                     }
                 }
 
@@ -494,5 +616,6 @@ function Invoke-CommitPush {
 switch ($Mode) {
     "Prepare" { Invoke-Prepare }
     "Scan" { Invoke-Scan }
+    "EnvCheck" { Invoke-EnvCheck }
     "CommitPush" { Invoke-CommitPush }
 }
