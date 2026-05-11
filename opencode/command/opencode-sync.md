@@ -101,6 +101,7 @@ Do not run multiple helper modes concurrently against the same repository. Git f
    - use repo-safe placeholders for secret-bearing repo config
    - keep `agent/` and `agents/` paths distinct
    - never add excluded GSD files
+   - if the intended merge strategy is unclear, stop and ask the user before editing
 5. After edits, rerun prepare mode to review the remaining diff surface:
    - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode Prepare -RawArguments "$ARGUMENTS"`
 6. Run the secret scan before committing anything:
@@ -123,4 +124,5 @@ Do not run multiple helper modes concurrently against the same repository. Git f
 - If repo has a reusable agent/skill improvement and local has machine-specific paths, keep the reusable content in both and keep machine-specific values local or placeholder-backed.
 - If only one side has a non-secret runtime file, usually add it to the other side unless it is machine-generated or excluded.
 - If a deletion appears intentional on one side, verify from context before deleting from the other side.
+- If files contain opposite directives, mutually exclusive behavior, or unclear conflicts, ask the user for the merge strategy before editing. Do not invent a compromise for safety, authority, model behavior, permissions, sync scope, secret handling, or destructive-operation rules.
 </merge_guidance>
