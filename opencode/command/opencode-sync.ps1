@@ -180,6 +180,7 @@ function Test-ExcludedPath {
     if ($name -eq "gsd-file-manifest.json") { return $true }
     if ($name -like ".lock-*") { return $true }
     if ($name -like "*.pyc") { return $true }
+    if ($name -like "*.tmp") { return $true }
     if ($name -match '\.bak\.') { return $true }
 
     return $false
@@ -330,6 +331,25 @@ function Test-PlaceholderValue {
     return $false
 }
 
+function Get-AssignmentValue {
+    param([string]$ValueExpression)
+
+    if ([string]::IsNullOrWhiteSpace($ValueExpression)) { return "" }
+    $value = $ValueExpression.Trim()
+    if ($value.StartsWith('"')) {
+        $match = [regex]::Match($value, '^"([^"]*)"')
+        if ($match.Success) { return $match.Groups[1].Value }
+    }
+    if ($value.StartsWith("'")) {
+        $match = [regex]::Match($value, "^'([^']*)'")
+        if ($match.Success) { return $match.Groups[1].Value }
+    }
+
+    $match = [regex]::Match($value, '^[^,;#}\]\s]+')
+    if ($match.Success) { return $match.Value }
+    return $value
+}
+
 function Find-SecretFindings {
     $hardPatterns = @(
         @{ name = "private-key"; pattern = '-----BEGIN [A-Z ]*PRIVATE KEY-----' },
@@ -341,7 +361,15 @@ function Find-SecretFindings {
         @{ name = "connection-string-secret"; pattern = '(?i)(AccountKey|SharedAccessKey|Password|Pwd)\s*=\s*[^;\s]{8,}' }
     )
 
-    $keyValuePattern = '^\s*["'']?(api[_-]?key|token|secret|password|passwd|pwd|client[_-]?secret|connection[_-]?string|access[_-]?key|refresh[_-]?token)["'']?\s*[:=]\s*["'']?([^"'',;#}\s]+)'
+    $secretKeyPattern = 'api[_-]?key|apikey|token|secret|password|passwd|pwd|client[_-]?secret|connection[_-]?string|access[_-]?key|refresh[_-]?token'
+    $envSecretKeyPattern = 'API[_-]?KEY|APIKEY|TOKEN|SECRET|PASSWORD|PASSWD|PWD|CLIENT[_-]?SECRET|CONNECTION[_-]?STRING|ACCESS[_-]?KEY|REFRESH[_-]?TOKEN'
+    $jsonEnvAssignmentPattern = '["''][A-Z0-9_.-]*(?:' + $envSecretKeyPattern + ')[A-Z0-9_.-]*["'']\s*:\s*["'']([^"'']+)["'']'
+    $shellEnvAssignmentPattern = '^\s*[A-Z0-9_.-]*(?:' + $envSecretKeyPattern + ')[A-Z0-9_.-]*\s*=\s*["'']?([^"'',;#}\]\s]+)'
+    $keyValuePatterns = @(
+        '(?i)^\s*["'']([^"'']*(?:' + $secretKeyPattern + ')[^"'']*)["'']\s*[:=]\s*(.+)$',
+        '^\s*([A-Z0-9_.-]*(?:' + $envSecretKeyPattern + ')[A-Z0-9_.-]*)\s*[:=]\s*(.+)$'
+    )
+    $cliArgPattern = '(?i)(?:^|\s|["''])(?:--?)(?:' + $secretKeyPattern + ')\s*(?:=|\s+)\s*["'']?([^"'',;#}\s\]]+)'
     $findings = New-Object System.Collections.Generic.List[object]
 
     foreach ($relative in (Get-SyncFiles $RepoRuntimeRoot)) {
@@ -363,14 +391,44 @@ function Find-SecretFindings {
                     }
                 }
 
-                $match = [regex]::Match($line, $keyValuePattern)
-                if ($match.Success) {
-                    $value = $match.Groups[2].Value
+                foreach ($assignmentPattern in @($jsonEnvAssignmentPattern, $shellEnvAssignmentPattern)) {
+                    $assignmentMatch = [regex]::Match($line, $assignmentPattern)
+                    if ($assignmentMatch.Success) {
+                        $value = Get-AssignmentValue $assignmentMatch.Groups[1].Value
+                        if (-not (Test-PlaceholderValue $value)) {
+                            $findings.Add([pscustomobject]@{
+                                path = $relative
+                                line = $lineNumber
+                                type = "secret-like-assignment"
+                            })
+                        }
+                        break
+                    }
+                }
+
+                foreach ($keyValuePattern in $keyValuePatterns) {
+                    $match = [regex]::Match($line, $keyValuePattern)
+                    if ($match.Success) {
+                        $value = Get-AssignmentValue $match.Groups[2].Value
+                        if (-not (Test-PlaceholderValue $value)) {
+                            $findings.Add([pscustomobject]@{
+                                path = $relative
+                                line = $lineNumber
+                                type = "secret-like-assignment"
+                            })
+                        }
+                        break
+                    }
+                }
+
+                $cliMatch = [regex]::Match($line, $cliArgPattern)
+                if ($cliMatch.Success) {
+                    $value = $cliMatch.Groups[1].Value
                     if (-not (Test-PlaceholderValue $value)) {
                         $findings.Add([pscustomobject]@{
                             path = $relative
                             line = $lineNumber
-                            type = "secret-like-assignment"
+                            type = "secret-like-cli-argument"
                         })
                     }
                 }

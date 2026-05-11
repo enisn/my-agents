@@ -66,6 +66,7 @@ Exclude these everywhere, per file or directory basename:
 - `dist/**`
 - `build/**`
 - `*.pyc`
+- `*.tmp`
 - `.lock-*`
 - `*.bak.*`
 
@@ -77,6 +78,8 @@ Important: filter per file. Do not assume an entire folder is GSD or non-GSD.
 - Preserve local secret values when merging config files.
 - For repo-side config, use placeholders, environment-variable references, or omit machine-local secret values.
 - Treat these as secret-bearing unless proven otherwise: `opencode.json`, `opencode.jsonc`, `settings.json`, `mcp-servers/**`, `hooks/**`, `plugin/**`, `plugins/**`, `tool/**`, `tools/**`.
+- Prefer OS/user-level environment variables for API keys instead of literal values in OpenCode config files.
+- The helper blocks common secret shapes in repo files, including key names containing `API_KEY`, `TOKEN`, `SECRET`, `PASSWORD`, connection strings, and CLI arguments such as `--api-key=...`.
 - Do not print secret values in the response, commit message, or diagnostics.
 - If a useful repo update conflicts with a local secret, keep the local value locally and commit only the non-secret structure or placeholder in the repo.
 </secret_policy>
