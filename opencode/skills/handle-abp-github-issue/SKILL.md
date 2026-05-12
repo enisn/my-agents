@@ -68,8 +68,11 @@ Treat this skill as code-first for actionable ABP GitHub issues.
 14. If the issue has no milestone, skip it in batch mode. In single-issue mode, ask exactly one targeted question for the target branch or version.
 15. If you present code or configuration as exact or copy-paste-safe, validate it with `abp-support-lab` or `/abp-support-validate` when practical.
 16. When validating a fresh generated project against local ABP source, use `abpdev references to-local <workingdirectory>` so the lab project switches from package references to local csproj references.
-17. PRs must target the resolved base branch and include a closing keyword such as `Closes #123`.
-18. Prefer the smallest safe change that resolves the issue.
+17. For visual or browser-driven issues, do not claim the issue is fixed from source inspection, screenshots, or underlying DOM/native values alone; verify the visible on-screen behavior when practical.
+18. Prefer Playwright MCP/browser tools for visual validation. If browser tools are not available in the current session, ask the user to enable Playwright MCP tools. Do not install standalone Playwright or create ad-hoc npm/browser-test projects just to compensate.
+19. When a visual issue depends on generated templates, released packages, or local source changes, validate it against a fresh generated project that is switched to local csproj references with `abpdev references to-local`.
+20. PRs must target the resolved base branch and include a closing keyword such as `Closes #123`.
+21. Prefer the smallest safe change that resolves the issue.
 
 ## Branch Resolution From Milestone
 
@@ -278,6 +281,7 @@ Validation can include:
 - lint for touched files or project
 - build for affected projects
 - fresh-project validation through `abp-support-lab` or `/abp-support-validate`
+- browser validation of the visible UI state when the issue is visual or interaction-driven
 
 Use fresh-project validation when the issue depends on:
 
@@ -286,6 +290,7 @@ Use fresh-project validation when the issue depends on:
 - package versus project references
 - version-specific behavior
 - runtime or browser behavior that is safer to validate in isolation
+- visual behavior where the underlying native value may be correct but the rendered UI may still be stale or misleading
 
 ### Local-Source Validation Rule
 
@@ -301,6 +306,32 @@ abpdev references to-local <workingdirectory>
 3. Then run build, tests, or browser validation against that converted project.
 
 This ensures the lab project references local csproj files instead of NuGet packages.
+
+### Visual Validation Rule
+
+Use this rule whenever the issue is about visible UI state, delayed repaint, custom component wrappers, browser interaction timing, or any scenario where the saved/native value may differ from what the user sees.
+
+1. Reproduce the issue in a fresh generated or otherwise minimal local app when practical.
+2. Switch that app to local source references with:
+
+```bash
+abpdev references to-local <workingdirectory>
+```
+
+3. Restore, build, and run the app from that local-source setup.
+4. If Playwright MCP/browser tools are available in the current session, use them to verify the visible browser state.
+5. Compare both layers when relevant:
+   - the visible custom UI text/state
+   - the underlying native DOM value/state
+6. Do not stop at "the underlying value is correct" if the reported bug is visual; confirm the rendered UI updates correctly on screen.
+7. When helpful, capture a screenshot after reproduction or after the fix so the visible result is explicit.
+8. If Playwright MCP/browser tools are not available in the current session, ask the user to enable them instead of trying to install Playwright or scaffolding a separate browser-test project.
+
+Typical examples that require this rule:
+
+- custom select wrappers where the native `select.value` changes but the visible wrapper text does not
+- modal/dialog interaction bugs that depend on timing or repaint
+- theme/script issues where screenshots or DOM values alone are not enough to prove the visible fix
 
 ## Path C: Feature Request
 
@@ -419,6 +450,8 @@ Before finalizing the issue response or PR, make sure you considered:
 - third-party docs when provider behavior matters
 - fresh-project validation results when you used `abp-support-lab` or `/abp-support-validate`
 - whether `abpdev references to-local` was needed for local source validation
+- actual on-screen browser state when the issue is visual
+- whether the visible UI and the underlying native/DOM value were both checked when that distinction matters
 
 ## Output Expectations
 
@@ -430,9 +463,11 @@ When finishing, report back with:
 - whether you answered the issue or changed code
 - tests and validation run
 - whether lab validation was `validated`, `partially-validated`, or `guidance-only`
+- whether visual validation was `screen-verified`, `dom-only`, or `not-run`
+- whether Playwright MCP/browser tools were used or the user needed to enable them
 - PR URL if created
 - any remaining open question
 
 ## Quick Reminder
 
-Use GitHub-native issue handling first, milestone-to-branch resolution second, ABP source-of-truth verification third, and code or public reply last. For ABP internals, use `abp-source-reference`. For exact validation on fresh projects, use `abp-support-lab` or `/abp-support-validate`, and switch the lab project to local csproj references with `abpdev references to-local` when needed.
+Use GitHub-native issue handling first, milestone-to-branch resolution second, ABP source-of-truth verification third, and code or public reply last. For ABP internals, use `abp-source-reference`. For exact validation on fresh projects, use `abp-support-lab` or `/abp-support-validate`, and switch the lab project to local csproj references with `abpdev references to-local` when needed. For visual issues, prefer Playwright MCP/browser validation of the actual visible UI; if those tools are unavailable, ask the user to enable them instead of building a separate ad-hoc Playwright setup.

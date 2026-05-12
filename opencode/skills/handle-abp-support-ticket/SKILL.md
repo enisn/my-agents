@@ -31,6 +31,9 @@ Default to `answer-only` unless the user asks for documentation or code changes.
 ## Hard Rules
 
 1. Always read the full support question before answering.
+   - When a ticket number is available, first fetch `https://abp.io/api/qa/questions/<ticket-id>/markdown` with the ABP CLI access token from `~/.abp/cli/access-token.bin` so private tickets can be read too.
+   - Read the token with UTF-8-aware file reading because the file is BOM-prefixed.
+   - If the markdown API returns `401` or `403`, ask the user to run `abp login` and retry after they re-authenticate.
 2. Always inspect attached screenshots when they exist. Extract the actual visible configuration values, errors, toggles, model names, and URLs.
 3. When the ticket touches ABP internals, module behavior, framework conventions, or unclear implementation details, load and use the `abp-source-reference` skill instead of assuming repository locations from memory.
 4. Verify from real source and docs; do not guess internal behavior.
@@ -45,6 +48,8 @@ Default to `answer-only` unless the user asks for documentation or code changes.
 10. Keep ticket-specific one-off artifacts out of this reusable workflow unless the user explicitly asks for them.
 11. If external behavior matters, verify with vendor documentation rather than assuming ABP is at fault.
 12. If you are going to present code or configuration as copy-paste-safe, validate it first with `abp-support-lab` or `/abp-support-validate` when available. Otherwise label it clearly as guidance-only.
+13. Do not offer to create or manage internal issues, escalations, or other internal follow-up processes on the asker's behalf, or ask them for permission/confirmation to do so.
+14. Only publish a reply to the support site when the local user explicitly asks you to post or publish it.
 
 ## Recommended Workflow
 
@@ -61,15 +66,17 @@ If the folder exists:
 - use them as prior context, open questions, and continuity from earlier sessions
 - do not treat local notes as the source of truth over the actual support ticket, screenshots, source, or docs
 
-In a fresh session, do not start from scratch if previous local artifacts already exist for the same ticket.
-Always reuse them first, then re-fetch the support ticket and re-verify the current facts.
+In a fresh session, do not start from scratch if previous local artifacts already exist for the same ticket. Always reuse them first, then re-fetch the support ticket and re-verify the current facts.
 
 ### Step 1: Read the support ticket
 
-Fetch the support page in a readable form.
+Fetch the support ticket from the markdown API endpoint first.
 
-- Use markdown fetch for readable content
-- Use HTML fetch when needed to discover attachment URLs or missing details
+- If the user gives an `abp.io/support/questions/...` link, extract the ticket number from the URL and first try `https://abp.io/api/qa/questions/<ticket-id>/markdown` with the ABP CLI token.
+- Read the token from `~/.abp/cli/access-token.bin` with UTF-8-aware file reading, for example in PowerShell: `[System.IO.File]::ReadAllText($tokenPath, [System.Text.Encoding]::UTF8).Trim()`
+- If the markdown API returns `401` or `403`, ask the user to run `abp login` and retry after they re-authenticate.
+- If the user gives the markdown API URL directly, use it as-is with the same token flow.
+- Use the public HTML support page only when the markdown payload is missing attachment details or other required context.
 
 Look for:
 
@@ -227,6 +234,16 @@ Storage rules:
 
 If you also prepare supporting notes for internal use, keep them separate from the public answer.
 
+### Step 8: Publish the answer through the API when requested
+
+If the local user explicitly asks you to publish the prepared reply, post it through the authenticated support API using the same ABP CLI token flow.
+
+- Extract the question GUID from the markdown export metadata, for example from the `qa:question:start... id="..."` comment.
+- Read the ABP CLI token from `~/.abp/cli/access-token.bin` with UTF-8-aware file reading.
+- POST the reply markdown to `https://abp.io/api/qa/answers/questions/<question-guid>/answers` with `Authorization: Bearer <token>` and a JSON body shaped like `{ "text": "<reply markdown>" }`.
+- If the publish call returns `401` or `403`, ask the user to run `abp login` and retry after they re-authenticate.
+- Treat the returned answer id and creation metadata as the publish confirmation, and report them back to the local user.
+
 ## Docs Follow-Up Path
 
 Use this only when the user asks for documentation changes or the docs gap is part of the task.
@@ -285,9 +302,9 @@ When finishing, report back to the local user with:
 - what evidence you used
 - whether any code/config examples were validated or remain guidance-only
 - the markdown file path you created
+- the published answer id and URL, if you published the reply
 - the validation report path, if you used the lab
 - any docs/code files changed, if applicable
-- any internal follow-up you recommend or created; if you also mention it in the public support answer, keep it to a terse status with the issue number only
 - any unresolved question that still needs asker feedback
 
 ## Quick Reminder
