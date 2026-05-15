@@ -10,7 +10,7 @@ Automates repeatable release-QA preparation for ABP ecosystem repositories:
 - `C:\P\volo`
 - `C:\P\lepton`
 
-Produces feature-grouped QA issue content in Turkish and creates 3 GitHub issues in `C:\P\vs-internal` assigned to `gizemmutukurt`.
+Produces feature-grouped QA test-plan markdown files, converts issue content to Turkish, then creates 3 GitHub issues in `C:\P\vs-internal` assigned to `gizemmutukurt`.
 
 ## Input Contract
 
@@ -42,37 +42,36 @@ Example:
 
 ## Workflow
 
-1. Analyze branch delta in `C:\P\abp` (`rel-{from}`...`rel-{to}`) and generate concise, feature-grouped QA issue content for ABP.
-2. Analyze branch delta in `C:\P\volo` and generate same-style QA issue content for VOLO.
-3. Analyze branch delta in `C:\P\lepton` and generate same-style QA issue content for Lepton.
+1. Analyze branch delta in `C:\P\abp` (`rel-{from}`...`rel-{to}`) and generate concise, feature-grouped QA markdown at ABP repo root.
+2. Analyze branch delta in `C:\P\volo` and generate same-style markdown at VOLO repo root.
+3. Analyze branch delta in `C:\P\lepton` and generate same-style markdown at Lepton repo root.
 4. For each repo, create full merge-PR exhaustive set from branch diff as baseline, then exclude bot PRs by author/login (primary match `github-actions[bot]`, also `github-actions`) and exclude bot-authored auto-sync titles matching `^Merge branch dev with rel-\d+\.\d+$`.
 5. Default issue-generation mode is **UI test team mode**: build scenarios from `ui_testable_set` (not raw exhaustive set). Include backend/app changes when user-facing impact is testable via UI route/page/flow/message/visibility; exclude infra-only/technical-only changes not UI-verifiable.
 6. Validate coverage rule before final issue body in UI mode: `ui_testable_set - scenario_pr_set = 0`; if not zero, auto-append/adjust test cases until zero. Note: in UI mode `scenario_pr_set`, by design, can be a subset of non-bot exhaustive set.
-7. Translate each generated content set to Turkish in concise, self-contained issue-friendly form.
+7. Translate each generated doc content to Turkish in concise issue-friendly form.
 8. In `C:\P\vs-internal`, create 3 GitHub issues via `gh issue create`, assigning `gizemmutukurt` for each.
 
-## Issue Body Format (Primary Output)
+## QA Test Plan Document Format (for each repo)
 
-Default output is the issue body itself. Do **not** write repo-root markdown files unless the user explicitly asks for them.
+Create one markdown file in each repo root named exactly:
+- `rel-{from}-to-rel-{to}-changelog-and-testing-scenarios.md`
 
 Required sections:
-1. Title: `QA Test Planı: {RepoAdi} {from} -> {to}`
-2. `## Özet`
-3. `## Değişiklik Grupları`
-4. `## Test Senaryoları` (grouped by feature)
+1. `# QA Test Plan: {repo} {from} -> {to}`
+2. `## Scope`
+3. `## Feature Groups`
+4. `## Test Cases` (grouped by feature)
    - UI mode'da her `ui_testable_set` PR'ı en az bir test-case bloğunda yer almalıdır.
    - For each test case include (Turkish terms): `Test Case ID/Adı`, `Etkilenen PR/Commit Referansları` (yalnızca tam URL), `Nereden Test Edilir`, `Etkilenen Yerler`, `Test Adımları`, `Beklenen Sonuç`, `Efor Sınıfı (XS/SM/MD/LG/XL)`, `Efor Gerekçesi`, `Tahmini Süre` (opsiyonel), `Öncelik (P0/P1/P2)`
-   - `Test Adımları` alanı tek satır paragraf değil, nested bullet list olarak yazılmalıdır.
    - Efor sınıfı zorunludur; XS/SM/MD/LG/XL viewport/breakpoint değil, test efor seviyesidir: `XS: çok düşük efor`, `SM: düşük efor`, `MD: orta efor`, `LG: yüksek efor`, `XL: çok yüksek efor`.
-5. `## Öncelik ve Risk` (P0/P1/P2)
-6. `## Referans`
+5. `## Risk-Based Priority` (P0/P1/P2)
+6. `## Notes` (mention if based on PR mapping or direct commits)
 
 ## Issue Reference Rules (Critical)
 
 - PR referansları issue içeriğinde sadece tam URL olarak verilir (örnek: `https://github.com/abpframework/abp/pull/12345`), `#12345` formatı kullanılmaz.
 - Test-case grouped yapı zorunludur: her test case bloğunun altında kendi `Etkilenen PR/Commit Referansları` listesi bulunur.
 - Test case blokları markdown checkbox formatıyla yazılır (`- [ ]`) ve her test case için checklist girişi bulunur.
-- `Test Adımları` alanı her test case içinde inner bullet point list olarak yazılmalıdır.
 - Her test case bloğunda `Efor Sınıfı (XS/SM/MD/LG/XL)` ve `Efor Gerekçesi` alanları bulunmalıdır; `Tahmini Süre` alanı opsiyoneldir.
 - UI mode'da her `ui_testable_set` PR bir test-case bloğuna map edilmelidir; PR'lar issue sonunda ayrı toplu liste olarak tekrar edilmez.
 - PR eşleştirmesi yoksa ilgili test case altında tam commit URL verilir (örnek: `https://github.com/abpframework/abp/commit/<sha>`).
@@ -108,7 +107,7 @@ All issue titles and bodies MUST be in Turkish.
 ## Issue Template (Turkish)
 
 Title:
-- `QA Test Planı: {RepoAdi} {from} -> {to}`
+- `QA Test Plan: {RepoAdi} {from} -> {to}`
 
 Body:
 
@@ -129,10 +128,7 @@ Body:
   - *(PR eşleşmesi yoksa ilgili commit URL'leri)* `https://github.com/<org>/<repo>/commit/<sha>`
 - **Nereden Test Edilir**: {UI/API/Servis ekranı veya uç noktası}
 - **Etkilenen Yerler**: `{src/...}`, `{modules/...}`
-- **Test Adımları**:
-  - {Adım 1}
-  - {Adım 2}
-  - {Adım 3}
+- **Test Adımları**: {Adımlar}
 - **Beklenen Sonuç**: {Beklenen sonuç}
 - **Efor Sınıfı (XS/SM/MD/LG/XL)**: {XS/SM/MD/LG/XL}
 - **Efor Gerekçesi**: {Seçilen efor sınıfının kısa gerekçesi}
@@ -146,9 +142,7 @@ Body:
   - *(PR eşleşmesi yoksa)* `https://github.com/<org>/<repo>/commit/<sha>`
 - **Nereden Test Edilir**: {UI/API/Servis ekranı veya uç noktası}
 - **Etkilenen Yerler**: `{...}`
-- **Test Adımları**:
-  - {Adım 1}
-  - {Adım 2}
+- **Test Adımları**: {Adımlar}
 - **Beklenen Sonuç**: {Beklenen sonuç}
 - **Efor Sınıfı (XS/SM/MD/LG/XL)**: {XS/SM/MD/LG/XL}
 - **Efor Gerekçesi**: {Seçilen efor sınıfının kısa gerekçesi}
@@ -173,7 +167,7 @@ Run in `C:\P\vs-internal`:
 
 ```bash
 gh issue create \
-  --title "QA Test Planı: ABP 10.0 -> 10.1" \
+  --title "QA Test Plan: ABP 10.0 -> 10.1" \
   --assignee "gizemmutukurt" \
   --body "$(cat <<'EOF'
 ## Özet
@@ -191,10 +185,7 @@ gh issue create \
   - https://github.com/abpframework/abp/pull/12367
 - **Nereden Test Edilir**: ABP Suite kullanıcı yönetimi ekranı ve ilgili Identity API uç noktaları.
 - **Etkilenen Yerler**: `modules/identity`, `framework/src/Volo.Abp.Identity`
-- **Test Adımları**:
-  - Kullanıcı oluştur.
-  - Rol ata.
-  - Kullanıcıyla giriş yap.
+- **Test Adımları**: Kullanıcı oluştur, rol ata, kullanıcıyla giriş yap.
 - **Beklenen Sonuç**: Rol bazlı erişim doğru çalışır.
 - **Efor Sınıfı (XS/SM/MD/LG/XL)**: LG
 - **Efor Gerekçesi**: Kimlik ve yetki akışlarında birden fazla kritik adım ve rol kombinasyonu bulunduğu için yüksek efor gerekir.
@@ -213,7 +204,7 @@ EOF
 
 ```bash
 gh issue create \
-  --title "QA Test Planı: VOLO 10.0 -> 10.1" \
+  --title "QA Test Plan: VOLO 10.0 -> 10.1" \
   --assignee "gizemmutukurt" \
   --body "$(cat <<'EOF'
 ## Özet
@@ -231,9 +222,7 @@ gh issue create \
   - https://github.com/volosoft/volo/commit/abcdef1234567890abcdef1234567890abcdef12
 - **Nereden Test Edilir**: Ticari modül yönetim paneli, lisans doğrulama servisi ve SaaS tenant yönetim ekranları.
 - **Etkilenen Yerler**: `modules/license`, `modules/saas`
-- **Test Adımları**:
-  - Lisans kontrolünü doğrula.
-  - Tenant bazlı modül erişimini test et.
+- **Test Adımları**: Lisans kontrolünü doğrula, tenant bazlı modül erişimini test et.
 - **Beklenen Sonuç**: Lisans ve tenant davranışı beklenen şekilde çalışır.
 - **Efor Sınıfı (XS/SM/MD/LG/XL)**: XL
 - **Efor Gerekçesi**: Lisans, tenant ve ticari modül bağımlılıkları nedeniyle kapsam geniş ve hata etkisi yüksek olduğundan çok yüksek efor gerekir.
@@ -252,7 +241,7 @@ EOF
 
 ```bash
 gh issue create \
-  --title "QA Test Planı: Lepton 5.0 -> 5.1" \
+  --title "QA Test Plan: Lepton 5.0 -> 5.1" \
   --assignee "gizemmutukurt" \
   --body "$(cat <<'EOF'
 ## Özet
@@ -268,10 +257,7 @@ gh issue create \
   - https://github.com/volosoft/lepton/pull/891
 - **Nereden Test Edilir**: LeptonX demo uygulaması ana sayfa, menü ve form ekranları.
 - **Etkilenen Yerler**: `themes/leptonx`, `src/LeptonX.Theme`
-- **Test Adımları**:
-  - Ana sayfayı doğrula.
-  - Menüyü doğrula.
-  - Kritik formları farklı boyutlarda doğrula.
+- **Test Adımları**: Ana sayfa, menü ve kritik formları farklı boyutlarda doğrula.
 - **Beklenen Sonuç**: UI kırılmaları olmadan tutarlı görünüm sağlanır.
 - **Efor Sınıfı (XS/SM/MD/LG/XL)**: MD
 - **Efor Gerekçesi**: Tema ve bileşen doğrulaması orta kapsamlıdır; kritik akışlar mevcut ancak bağımlılık sayısı sınırlıdır.
@@ -301,8 +287,10 @@ Coverage verification pattern (before each `gh issue create`):
 
 ## Validation Checklist
 
+- [ ] `C:\P\abp` içinde QA markdown dokümanı oluştu.
+- [ ] `C:\P\volo` içinde QA markdown dokümanı oluştu.
+- [ ] `C:\P\lepton` içinde QA markdown dokümanı oluştu.
 - [ ] `C:\P\vs-internal` içinde 3 issue oluşturuldu.
-- [ ] Repo köklerine markdown dosya yazılmadı; içerik doğrudan issue body'lerinde hazırlandı.
 - [ ] Tüm issue URL'leri kaydedildi.
 - [ ] Her issue assignee değeri `gizemmutukurt`.
 - [ ] Author/login `github-actions[bot]` (öncelikli) veya `github-actions` olan PR'lar considered/exhaustive PR setinden çıkarıldı.
@@ -311,7 +299,6 @@ Coverage verification pattern (before each `gh issue create`):
 - [ ] Kapsama doğrulaması yapıldı (UI mode): `ui_testable_set - scenario_pr_set = 0`.
 - [ ] Mevcut issue düzenleme senaryosunda mevcut `@username` mention'ları korundu.
 - [ ] Her test case markdown checkbox (`- [ ]`) ile yazıldı.
-- [ ] Her `Test Adımları` alanı inner bullet point list olarak yazıldı.
 - [ ] Her test case bloğunda `Efor Sınıfı (XS/SM/MD/LG/XL)` ve `Efor Gerekçesi` alanları yer alıyor; `Tahmini Süre` alanı varsa tutarlı şekilde dolduruldu.
 - [ ] Issue gövdelerinde PR referansları yalnızca test-case bloklarında verildi (sonda toplu PR listesi yok).
 - [ ] Tüm repolarda (ABP/VOLO/Lepton) issue gövdeleri self-contained hazırlandı; yerel markdown dosya yolu referansı (`C:\P\...\.md`) kullanılmadı.
