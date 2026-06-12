@@ -1,0 +1,106 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"],
+      "enabled": false
+    },
+    "vibe_kanban": {
+      "type": "local",
+      "command": ["npx", "-y", "vibe-kanban@latest", "--mcp"],
+      "enabled": false
+    },
+    "dev_manager": {
+      "type": "local",
+      "command": ["npx", "dev-manager-mcp", "stdio"],
+      "enabled": false
+    },
+    "chrome_devtools": {
+      "type": "local",
+      "command": ["npx", "chrome-devtools-mcp@latest"],
+      "enabled": false
+    },
+    "abp-studio": {
+      "type": "local",
+      "command": ["abp", "mcp-studio"],
+      "enabled": false
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+      },
+      "enabled": true
+    },
+    "unityMCP": {
+      "type": "remote",
+      "url": "http://localhost:8080/mcp",
+      "enabled": false
+    },
+    "blender-mcp": {
+      "type": "local",
+      "command": ["uvx", "blender-mcp"],
+      "enabled": false
+    },    
+    "coolify": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@masonator/coolify-mcp"
+      ],
+      "environment": {
+        "COOLIFY_BASE_URL": "{env:COOLIFY_BASE_URL}",
+        "COOLIFY_ACCESS_TOKEN": "{env:COOLIFY_ACCESS_TOKEN}"
+      },
+      "enabled": false
+    },
+    "windows_desktop": {
+      "type": "local",
+      "command": ["python", "{env:USERPROFILE}/.config/opencode/mcp-servers/windows-desktop-mcp/server.py"],
+      "enabled": false
+    },
+    "windows-mcp": {
+      "type": "local",
+      "command": [
+        "{env:USERPROFILE}/.local/bin/uvx.exe",
+        "windows-mcp",
+        "serve"
+      ],
+      "enabled": false,
+      "timeout": 120000,
+      "environment": {
+        "ANONYMIZED_TELEMETRY": "false"
+      }
+    },
+    "z_ai_vision": {
+      "type": "local",
+      "command": ["npx", "-y", "@z_ai/mcp-server"],
+      "enabled": true,
+      "environment": {
+        "ZAI_API_KEY": "{env:ZAI_API_KEY}",
+        "Z_AI_MODE": "ZAI"
+      }
+    },
+    "z_ai_websearch": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ZAI_API_KEY}"
+      },
+      "enabled": false
+    },
+    "z_ai_webreader": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ZAI_API_KEY}"
+      },
+      "enabled": false
+    },
+  },
+  "plugin": ["opencode-gemini-auth@latest"],
+  "permission": "allow"
+}

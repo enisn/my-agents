@@ -9,6 +9,14 @@
 - Do not create commits unless the user explicitly asks for a commit. If a large validated change set is complete and left uncommitted, clearly tell the user and offer to commit it.
 - Prefer finishing each requested unit with a small, reviewable diff and a clean/synced worktree when the user has asked for commit/push. This helps avoid OpenCode Desktop/server instability caused by large uncommitted diffs.
 
+## Architecture Conflict Handling
+
+- Before implementing a request that conflicts with the current architecture, package boundaries, dependency direction, layering, public API design, or ownership of a type, stop and explain the conflict clearly.
+- Do not silently introduce wrapper types, factory abstractions, package references, dependency inversions, public API changes, or cross-layer references to satisfy the request unless the user has explicitly approved that architectural change.
+- If the user's requested implementation would create a circular dependency, make a lower-level package depend on a higher-level package, couple generic infrastructure to a specific UI/theme package, or otherwise violate existing design boundaries, push back instead of proceeding.
+- When there are two valid paths, ask a short confirmation question and present the tradeoff: preserve current architecture with a local/minimal fix, or change architecture with broader implications.
+- If the user appears to request something that is impossible or undesirable under the current architecture, say so directly and propose the smallest architecture-compatible alternative.
+
 ## Web Research
 
 - When the user asks you to perform web research or find external information on the internet, you MUST use the `bash` tool to run the headless `gemini` CLI.
