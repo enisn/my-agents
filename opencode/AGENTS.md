@@ -14,3 +14,9 @@
 - When the user asks you to perform web research or find external information on the internet, you MUST use the `bash` tool to run the headless `gemini` CLI.
 - Run the command: `gemini -p "Use google web search to [your search query here]"` to leverage Gemini's native Google Grounding tools.
 - Read the output from the CLI to gather your findings and provide a concise summary to the user.
+
+## GitHub CLI Body Safety
+
+- On Windows, do not rely on inline `\n` escape sequences in `gh` command arguments such as `--body`, since shell quoting often collapses or truncates multiline content.
+- For PR bodies, issue bodies, comments, or other multiline GitHub content, prefer file-backed input such as `gh pr create --body-file <file>` or `gh api ... -F body=@<file>`.
+- If you must update existing GitHub content and formatting matters, verify the stored body afterward with `gh pr view --json body`, `gh issue view --json body`, or the equivalent `gh api` readback.

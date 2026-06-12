@@ -12,6 +12,17 @@ Automates repeatable release-QA preparation for ABP ecosystem repositories:
 
 Produces feature-grouped QA test-plan markdown files, converts issue content to Turkish, then creates 3 GitHub issues in `C:\P\vs-internal` assigned to `gizemmutukurt`.
 
+## Bundled Scripts
+
+Use these deterministic helpers as the primary data source and wrappers:
+- Command argument normalizer: `$HOME/.config/opencode/command/abp-release-qa.ps1`
+- Branch/PR collector: `$HOME/.config/opencode/skills/abp-release-qa-orchestrator/scripts/collect-release-data.ps1`
+- Reference extractor: `$HOME/.config/opencode/skills/abp-release-qa-orchestrator/scripts/extract-reference-urls.ps1`
+- Coverage validator: `$HOME/.config/opencode/skills/abp-release-qa-orchestrator/scripts/validate-coverage.ps1`
+- Issue creator/updater: `$HOME/.config/opencode/skills/abp-release-qa-orchestrator/scripts/create-issue.ps1`
+
+Use scripts for normalization, branch fetching, merge PR harvesting, URL extraction, and GitHub issue creation. Use model judgment for `ui_testable_set`, feature grouping, Turkish wording, and final coverage adjustments.
+
 ## Input Contract
 
 Required:
