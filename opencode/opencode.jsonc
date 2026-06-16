@@ -99,7 +99,7 @@
         "Authorization": "Bearer {env:ZAI_API_KEY}"
       },
       "enabled": false
-    },
+    }
   },
   "plugin": ["opencode-gemini-auth@latest"],
   "permission": "allow"
