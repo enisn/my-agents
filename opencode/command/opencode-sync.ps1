@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("Prepare", "Scan", "EnvCheck", "CommitPush")]
+    [ValidateSet("Prepare", "Scan", "EnvCheck", "MaterializeLocalPaths", "CommitPush")]
     [string]$Mode = "Prepare",
     [string]$RawArguments = "",
     [string]$RepoRoot = "",
@@ -28,6 +28,25 @@ $SyncPrefixes = @(
     "opencode.jsonc",
     "settings.json"
 )
+
+$PathRootEnvironmentNames = @(
+    "APPDATA",
+    "DOTNET_ROOT",
+    "HOME",
+    "LOCALAPPDATA",
+    "NUGET_PACKAGES",
+    "OPENCODE_HOME",
+    "PROGRAMDATA",
+    "PROGRAMFILES",
+    "TEMP",
+    "TMP",
+    "USERPROFILE"
+)
+
+$PathRootEnvironmentNameSet = @{}
+foreach ($name in $PathRootEnvironmentNames) {
+    $PathRootEnvironmentNameSet[$name] = $true
+}
 
 function Get-DefaultRepoRoot {
     if ($env:OPENCODE_SYNC_REPO) { return $env:OPENCODE_SYNC_REPO }
@@ -312,6 +331,109 @@ function Get-EnvironmentReferenceState {
         available = $sources.Count -gt 0
         currentProcess = -not [string]::IsNullOrWhiteSpace($processValue)
         sources = $sources.ToArray()
+    }
+}
+
+function Get-EnvironmentValueForMaterialization {
+    param([string]$Name)
+
+    foreach ($scope in @("Process", "User", "Machine")) {
+        $value = [Environment]::GetEnvironmentVariable($Name, $scope)
+        if (-not [string]::IsNullOrWhiteSpace($value)) { return $value }
+    }
+
+    return $null
+}
+
+function ConvertTo-JsonSafePathFragment {
+    param([string]$Path)
+
+    return (($Path -replace '\\', '/') -replace '/+$', '')
+}
+
+function Get-LocalConfigFilesForPathMaterialization {
+    $configNames = @("opencode.jsonc", "opencode.json", "settings.json")
+    $files = New-Object System.Collections.Generic.List[string]
+
+    foreach ($configName in $configNames) {
+        $path = Join-Path $EffectiveLocalRoot $configName
+        if (Test-Path -LiteralPath $path -PathType Leaf) { $files.Add($path) }
+    }
+
+    return $files.ToArray()
+}
+
+function Convert-PathEnvironmentReferencesInText {
+    param(
+        [string]$Content,
+        [ref]$ReplacementCount,
+        [System.Collections.Generic.List[object]]$UnresolvedReferences
+    )
+
+    $pattern = '\{env:(?<name>[A-Za-z_][A-Za-z0-9_]*)\}(?<separator>[/\\])'
+    return [regex]::Replace($Content, $pattern, {
+        param($match)
+
+        $name = $match.Groups["name"].Value
+        if (-not $PathRootEnvironmentNameSet.ContainsKey($name)) { return $match.Value }
+
+        $value = Get-EnvironmentValueForMaterialization $name
+        if ([string]::IsNullOrWhiteSpace($value)) {
+            $UnresolvedReferences.Add([pscustomobject]@{
+                name = $name
+                reference = $match.Value
+            })
+            return $match.Value
+        }
+
+        $ReplacementCount.Value++
+        return "$(ConvertTo-JsonSafePathFragment $value)/"
+    })
+}
+
+function Invoke-MaterializeLocalPaths {
+    $changedFiles = New-Object System.Collections.Generic.List[object]
+    $unresolvedReferences = New-Object System.Collections.Generic.List[object]
+
+    foreach ($path in (Get-LocalConfigFilesForPathMaterialization)) {
+        $content = [System.IO.File]::ReadAllText($path)
+        $replacementCount = 0
+        $updated = Convert-PathEnvironmentReferencesInText $content ([ref]$replacementCount) $unresolvedReferences
+
+        if ($replacementCount -gt 0 -and $updated -ne $content) {
+            [System.IO.File]::WriteAllText($path, $updated, [System.Text.UTF8Encoding]::new($false))
+            $changedFiles.Add([pscustomobject]@{
+                path = $path
+                replacements = $replacementCount
+            })
+        }
+    }
+
+    if ($Json) {
+        [pscustomobject]@{
+            localRoot = $EffectiveLocalRoot
+            changedFiles = $changedFiles.ToArray()
+            unresolvedReferences = $unresolvedReferences.ToArray()
+        } | ConvertTo-Json -Depth 5
+        return
+    }
+
+    if ($changedFiles.Count -eq 0) {
+        Write-Host "No local path environment references needed materialization."
+    }
+    else {
+        Write-Host "Materialized local path environment references:"
+        foreach ($file in $changedFiles) {
+            Write-Host "  $($file.path) ($($file.replacements) replacement(s))"
+        }
+    }
+
+    if ($unresolvedReferences.Count -gt 0) {
+        Write-Host "Unresolved local path environment references left unchanged:"
+        $unresolvedReferences |
+            Sort-Object name, reference -Unique |
+            ForEach-Object { Write-Host "  $($_.reference)" }
+        exit 2
     }
 }
 
@@ -617,5 +739,6 @@ switch ($Mode) {
     "Prepare" { Invoke-Prepare }
     "Scan" { Invoke-Scan }
     "EnvCheck" { Invoke-EnvCheck }
+    "MaterializeLocalPaths" { Invoke-MaterializeLocalPaths }
     "CommitPush" { Invoke-CommitPush }
 }

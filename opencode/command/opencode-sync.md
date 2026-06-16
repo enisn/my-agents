@@ -78,8 +78,10 @@ Important: filter per file. Do not assume an entire folder is GSD or non-GSD.
 - Preserve local secret values when merging config files.
 - For repo-side config, use placeholders, environment-variable references, or omit machine-local secret values.
 - Treat these as secret-bearing unless proven otherwise: `opencode.json`, `opencode.jsonc`, `settings.json`, `mcp-servers/**`, `hooks/**`, `plugin/**`, `plugins/**`, `tool/**`, `tools/**`.
-- Prefer OS/user-level environment variables for API keys instead of literal values in OpenCode config files.
-- Use OpenCode config variable syntax `{env:VARIABLE_NAME}` when referencing environment variables in JSON/JSONC.
+- Prefer OS/user-level environment variables for API keys and other secrets instead of literal values in OpenCode config files.
+- Use OpenCode config variable syntax `{env:VARIABLE_NAME}` for secrets and other non-path values in JSON/JSONC.
+- Repo-side config may keep portable path placeholders such as `{env:USERPROFILE}/.config/...`, but local runtime config must materialize those path roots to the current machine value with JSON-safe forward slashes, such as `C:/Users/enisn/.config/...`.
+- Do not materialize secret placeholders. Only materialize path-root placeholders used as paths, for example `{env:USERPROFILE}/...`, `{env:HOME}/...`, or `{env:LOCALAPPDATA}/...`.
 - The helper blocks common secret shapes in repo files, including key names containing `API_KEY`, `TOKEN`, `SECRET`, `PASSWORD`, connection strings, `Authorization: Bearer ...`, and CLI arguments such as `--api-key=...`.
 - The helper reports every `{env:...}` reference used by local `opencode.jsonc` or `opencode.json`, and whether that variable is visible to the current process, user environment, or machine environment.
 - Do not print secret values in the response, commit message, or diagnostics.
@@ -99,29 +101,35 @@ Do not run multiple helper modes concurrently against the same repository. Git f
    - update both repo and local copies when both should converge
    - preserve local-only secrets locally
    - use repo-safe placeholders for secret-bearing repo config
+   - keep repo-side path placeholders portable, but materialize path placeholders in local config
    - keep `agent/` and `agents/` paths distinct
    - never add excluded GSD files
    - if the intended merge strategy is unclear, stop and ask the user before editing
-5. After edits, rerun prepare mode to review the remaining diff surface:
+5. After any edit that may write local `opencode.json`, `opencode.jsonc`, or `settings.json`, materialize path environment references locally:
+   - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode MaterializeLocalPaths -RawArguments "$ARGUMENTS"`
+   - this is local-only; do not apply it to repo files
+   - it resolves only known path-root placeholders followed by `/` or `\`, normalizes `\` to `/`, and leaves secret placeholders untouched
+6. After edits, rerun prepare mode to review the remaining diff surface:
    - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode Prepare -RawArguments "$ARGUMENTS"`
-6. Run the secret scan before committing anything:
+7. Run the secret scan before committing anything:
    - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode Scan -RawArguments "$ARGUMENTS"`
-7. Check environment-variable references used by local OpenCode config:
+8. Check environment-variable references used by local OpenCode config:
    - `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode EnvCheck -RawArguments "$ARGUMENTS"`
    - if a referenced variable is present in User/Machine but not the current process, tell the user to restart OpenCode/terminal
    - if a referenced variable is missing, report the variable name and reference location without printing any secret value
-8. Check the repository status:
+9. Check the repository status:
    - `git -C <repo-root> status --short`
-9. If repository changes are present and the scan passes, commit and push unless `no-push` was requested:
+10. If repository changes are present and the scan passes, commit and push unless `no-push` was requested:
    - normal path: `pwsh -NoProfile -ExecutionPolicy Bypass -File "$HOME/.config/opencode/command/opencode-sync.ps1" -Mode CommitPush -RawArguments "$ARGUMENTS"`
    - if unrelated pre-existing repo changes are present, do not use bulk commit mode; stage only the reviewed sync files manually, commit, and push if appropriate
-10. Report what changed, what was intentionally left local-only, env variables that are missing or need a restart, and whether a push occurred.
+11. Report what changed, what was intentionally left local-only, env variables that are missing or need a restart, and whether a push occurred.
 </process>
 
 <merge_guidance>
 - Prefer the newest correct behavior, not necessarily the newest timestamp.
 - If both sides edited instructions, combine compatible intent and remove duplication.
 - If repo has a reusable agent/skill improvement and local has machine-specific paths, keep the reusable content in both and keep machine-specific values local or placeholder-backed.
+- When syncing a repo path value containing a path-root placeholder into local config, materialize the local value to a concrete forward-slash path and leave the repo placeholder unchanged.
 - If only one side has a non-secret runtime file, usually add it to the other side unless it is machine-generated or excluded.
 - If a deletion appears intentional on one side, verify from context before deleting from the other side.
 - If files contain opposite directives, mutually exclusive behavior, or unclear conflicts, ask the user for the merge strategy before editing. Do not invent a compromise for safety, authority, model behavior, permissions, sync scope, secret handling, or destructive-operation rules.
