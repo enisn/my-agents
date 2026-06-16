@@ -62,6 +62,21 @@
       "command": ["python", "{env:USERPROFILE}/.config/opencode/mcp-servers/windows-desktop-mcp/server.py"],
       "enabled": false
     },
+    "taskever": {
+      "type": "local",
+      "command": [
+        "node",
+        "{env:TASKEVER_MCP_ROOT}/dist/index.js"
+      ],
+      "cwd": "{env:TASKEVER_MCP_ROOT}",
+      "enabled": true,
+      "timeout": 30000,
+      "environment": {
+        "TASKEVER_USERNAME": "{env:TASKEVER_USERNAME}",
+        "TASKEVER_PASSWORD": "{env:TASKEVER_PASSWORD}",
+        "TaskeverPassword": "{env:TaskeverPassword}"
+      }
+    },
     "windows-mcp": {
       "type": "local",
       "command": [
