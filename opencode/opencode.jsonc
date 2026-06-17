@@ -73,8 +73,7 @@
       "timeout": 30000,
       "environment": {
         "TASKEVER_USERNAME": "{env:TASKEVER_USERNAME}",
-        "TASKEVER_PASSWORD": "{env:TASKEVER_PASSWORD}",
-        "TaskeverPassword": "{env:TaskeverPassword}"
+        "TASKEVER_PASSWORD": "{env:TASKEVER_PASSWORD}"
       }
     },
     "windows-mcp": {
