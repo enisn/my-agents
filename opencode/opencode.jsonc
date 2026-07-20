@@ -89,6 +89,14 @@
         "ANONYMIZED_TELEMETRY": "false"
       }
     },
+    "codebase-memory-mcp": {
+      "type": "local",
+      "command": [
+        "{env:LOCALAPPDATA}/Programs/codebase-memory-mcp/codebase-memory-mcp.exe"
+      ],
+      "enabled": true,
+      "timeout": 300000
+    },
     "z_ai_vision": {
       "type": "local",
       "command": ["npx", "-y", "@z_ai/mcp-server"],
@@ -115,6 +123,12 @@
       "enabled": false
     }
   },
-  "plugin": ["opencode-gemini-auth@latest"],
+  "plugin": [
+    "opencode-gemini-auth@latest",
+    ["@plannotator/opencode@latest", {
+      "workflow": "plan-agent",
+      "planningAgents": ["plan"]
+    }]
+  ],
   "permission": "allow"
 }

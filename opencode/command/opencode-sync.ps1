@@ -39,6 +39,7 @@ $PathRootEnvironmentNames = @(
     "PROGRAMDATA",
     "PROGRAMFILES",
     "TEMP",
+    "TASKEVER_MCP_ROOT",
     "TMP",
     "USERPROFILE"
 )

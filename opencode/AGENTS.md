@@ -19,8 +19,8 @@
 
 ## Web Research
 
-- When the user asks you to perform web research or find external information on the internet, you MUST use the `bash` tool to run the headless `gemini` CLI.
-- Run the command: `gemini -p "Use google web search to [your search query here]"` to leverage Gemini's native Google Grounding tools.
+- When the user asks you to perform web research, deep research, or find external information on the internet, you MUST use the `bash` tool to run the headless `agy` CLI.
+- Run the command: `agy -p "Use google web search to [your search query here]"` to leverage Anti-Gravity's native web research tools.
 - Read the output from the CLI to gather your findings and provide a concise summary to the user.
 
 ## GitHub CLI Body Safety
